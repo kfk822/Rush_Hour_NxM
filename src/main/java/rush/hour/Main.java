@@ -1,20 +1,31 @@
 package rush.hour;
 
+import rush.hour.event.GameEvent;
+import rush.hour.event.GameEventPublisher;
+import rush.hour.event.GameEventType;
+import rush.hour.event.listener.AuditLoggerListener;
+import rush.hour.event.listener.ConsoleEventPrinter;
+import rush.hour.event.listener.ErrorCounter;
 import rush.hour.model.MapVO;
 import rush.hour.service.exceptions.MapReaderException;
 import rush.hour.service.map.parser.MapParser;
 import rush.hour.service.map.reader.ScannerMapReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.util.List;
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 public class Main {
     public static void main(String[] args) {
 
+        GameEventPublisher publisher = new GameEventPublisher();
+        ErrorCounter errorCounter = new ErrorCounter();
+        publisher.subscribe(new AuditLoggerListener());
+        publisher.subscribe(new ConsoleEventPrinter());
+        publisher.subscribe(errorCounter);
+
+        publisher.publish(new GameEvent(GameEventType.DEBUG, "Reading map from file"));
         Scanner mapScanner = new Scanner(Main.class.getClassLoader().getResourceAsStream("map.txt"));
         ScannerMapReader scannerMapReader = new ScannerMapReader(mapScanner);
 
@@ -23,17 +34,18 @@ public class Main {
 
             List<String> rawMap = scannerMapReader.readMap();
 
+            publisher.publish(new GameEvent(GameEventType.DEBUG, "Parsing map"));
             MapParser mapParser = new MapParser(rawMap.size(), rawMap.get(0).length());
-
             MapVO map = mapParser.parseMap(rawMap);
 
+            publisher.publish(new GameEvent(GameEventType.DEBUG, "Printing map details to console"));
             System.out.println(map);
         }
         catch (MapReaderException e){
-            System.out.println(e.getMessage());
+            publisher.publish(new GameEvent(GameEventType.ERROR, e.getMessage()));
         }
 
-
+        System.out.println(errorCounter.getErrorCount());
 
     }
 }

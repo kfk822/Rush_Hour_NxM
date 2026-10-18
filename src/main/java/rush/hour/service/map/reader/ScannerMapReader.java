@@ -2,13 +2,12 @@ package rush.hour.service.map.reader;
 
 import rush.hour.service.exceptions.MapReaderException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class ScannerMapReader implements MapReaderInterface{
-    private Scanner scanner;
+    private final Scanner scanner;
 
     public ScannerMapReader(Scanner scanner){
         this.scanner = scanner;
