@@ -50,6 +50,14 @@ public class VehicleVO {
         return Objects.hash(vehicleLength, orientation, verticalPosition, horizontalPosition);
     }
 
+    @Override
+    public String toString(){
+        return "length(" + vehicleLength +
+                "), orientation(" + orientation +
+                "), verticalPosition(" + verticalPosition +
+                "), horizontalPosition(" + horizontalPosition + ")";
+    }
+
     public VehicleVO withValue(int verticalPosition, int horizontalPosition){
         return builder()
                 .withVehicleLength(vehicleLength)
