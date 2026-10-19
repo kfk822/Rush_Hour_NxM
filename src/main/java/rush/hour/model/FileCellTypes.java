@@ -1,4 +1,4 @@
-package rush.hour.service.map.parser;
+package rush.hour.model;
 
 public enum FileCellTypes {
     HORIZONTAL_PLAYER('P', 'p'),
@@ -27,9 +27,9 @@ public enum FileCellTypes {
         this.body = '\0';
     }
 
-    char getHead(){
+    public char getHead(){
         return head;
     }
-    char getBody() { return body;}
+    public char getBody() { return body;}
 
 }

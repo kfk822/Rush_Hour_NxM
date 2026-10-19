@@ -1,5 +1,7 @@
 package rush.hour.model;
 
+import com.sun.source.doctree.VersionTree;
+
 import java.util.Objects;
 
 public class ExitVO {
@@ -59,8 +61,7 @@ public class ExitVO {
             return this;
         }
 
-        public ExitVO build(){
-            return new ExitVO(this);
+        public ExitVO build(){return new ExitVO(this);
         }
     }
 }

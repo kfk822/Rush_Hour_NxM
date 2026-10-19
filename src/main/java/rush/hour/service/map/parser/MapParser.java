@@ -1,9 +1,6 @@
 package rush.hour.service.map.parser;
 
-import rush.hour.model.ExitVO;
-import rush.hour.model.MapVO;
-import rush.hour.model.Orientation;
-import rush.hour.model.VehicleVO;
+import rush.hour.model.*;
 
 import java.util.ArrayList;
 import java.util.List;

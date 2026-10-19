@@ -190,17 +190,11 @@ public class MapVO {
         }
 
         public MapVO build(){
-            if(numberOfRows <= 0 || numberOfColumns <= 0){
-                throw new IllegalStateException("The board must be larger than 0!");
-            }
             if(heroCarAI == null || heroCarPlayer == null){
                 throw new IllegalStateException("The board must contain a Player and an AI car!");
             }
             if(exitPlayer == null || exitAI == null){
                 throw new IllegalStateException("The board must contain a Player and an AI exit!");
-            }
-            if(obstacles == null){
-                obstacles = new ArrayList<VehicleVO>();
             }
 
             return new MapVO(this);
