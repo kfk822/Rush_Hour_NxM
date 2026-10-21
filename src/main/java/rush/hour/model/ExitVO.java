@@ -1,14 +1,12 @@
 package rush.hour.model;
 
-import com.sun.source.doctree.VersionTree;
-
 import java.util.Objects;
 
 public class ExitVO {
     private final int verticalPosition;
     private final int horizontalPosition;
 
-    private ExitVO(Builder builder){
+    private ExitVO(Builder builder) {
         this.verticalPosition = builder.verticalPosition;
         this.horizontalPosition = builder.horizontalPosition;
     }
@@ -23,7 +21,7 @@ public class ExitVO {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()){
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ExitVO exitVO = (ExitVO) o;
@@ -37,31 +35,32 @@ public class ExitVO {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "verticalPosition(" + verticalPosition +
                 "), horizontalPosition(" + horizontalPosition + ")";
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
 
-    public static final class Builder{
+    public static final class Builder {
         private int verticalPosition;
         private int horizontalPosition;
 
-        public Builder withVerticalPosition(int verticalPosition){
+        public Builder withVerticalPosition(int verticalPosition) {
             this.verticalPosition = verticalPosition;
             return this;
         }
 
-        public Builder withHorizontalPosition(int horizontalPosition){
+        public Builder withHorizontalPosition(int horizontalPosition) {
             this.horizontalPosition = horizontalPosition;
             return this;
         }
 
-        public ExitVO build(){return new ExitVO(this);
+        public ExitVO build() {
+            return new ExitVO(this);
         }
     }
 }

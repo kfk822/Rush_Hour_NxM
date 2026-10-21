@@ -41,13 +41,13 @@ public class Main {
             List<String> rawMap = scannerMapReader.readMap();
 
             publisher.publish(new GameEvent(GameEventType.DEBUG, "Parsing map"));
-            MapParser mapParser = new MapParser(config.getNumberOfRows() + config.getWallSize(), config.getNumberOfColumns() + config.getWallSize());
+            MapParser mapParser = new MapParser(config.getNumberOfRows() + config.getWallSize(),
+                    config.getNumberOfColumns() + config.getWallSize());
             MapVO map = mapParser.parseMap(rawMap);
 
             publisher.publish(new GameEvent(GameEventType.DEBUG, "Printing map to console"));
             mapPrinter.printMap(map);
-        }
-        catch (MapReaderException e){
+        } catch (MapReaderException e) {
             publisher.publish(new GameEvent(GameEventType.ERROR, e.getMessage()));
         }
 

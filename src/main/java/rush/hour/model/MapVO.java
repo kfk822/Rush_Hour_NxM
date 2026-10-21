@@ -13,7 +13,7 @@ public class MapVO {
     private final VehicleVO heroCarAI;
     private final ExitVO exitAI;
 
-    private MapVO(Builder builder){
+    private MapVO(Builder builder) {
         numberOfRows = builder.numberOfRows;
         numberOfColumns = builder.numberOfColumns;
         obstacles = List.copyOf(builder.obstacles);
@@ -43,26 +43,33 @@ public class MapVO {
         return heroCarAI;
     }
 
-    public ExitVO getExitPlayer(){return exitPlayer;}
+    public ExitVO getExitPlayer() {
+        return exitPlayer;
+    }
 
-    public ExitVO getExitAI(){return exitAI;}
+    public ExitVO getExitAI() {
+        return exitAI;
+    }
 
-    public boolean isOccupied(int verticalPosition, int horizontalPosition){
+    public boolean isOccupied(int verticalPosition, int horizontalPosition) {
         List<VehicleVO> vehicles = new ArrayList<>(obstacles);
         vehicles.add(heroCarAI);
         vehicles.add(heroCarPlayer);
 
-        for(VehicleVO vehicle : vehicles){
+        for (VehicleVO vehicle : vehicles) {
             int vehicleLength = vehicle.getVehicleLength();
             int vehicleVerticalPosition = vehicle.getVerticalPosition();
             int vehicleHorizontalPosition = vehicle.getHorizontalPosition();
-            if(vehicle.getOrientation() == Orientation.VERTICAL){
-                if(horizontalPosition == vehicleHorizontalPosition && verticalPosition > (vehicleVerticalPosition - vehicleLength) && verticalPosition <= vehicleVerticalPosition){
+            if (vehicle.getOrientation() == Orientation.VERTICAL) {
+                if (horizontalPosition == vehicleHorizontalPosition &&
+                        verticalPosition > (vehicleVerticalPosition - vehicleLength) &&
+                        verticalPosition <= vehicleVerticalPosition) {
                     return true;
                 }
-            }
-            else{
-                if(verticalPosition == vehicleVerticalPosition && horizontalPosition > (vehicleHorizontalPosition - vehicleLength) && horizontalPosition <= vehicleHorizontalPosition){
+            } else {
+                if (verticalPosition == vehicleVerticalPosition &&
+                        horizontalPosition > (vehicleHorizontalPosition - vehicleLength) &&
+                        horizontalPosition <= vehicleHorizontalPosition) {
                     return true;
                 }
             }
@@ -70,9 +77,10 @@ public class MapVO {
 
         return false;
     }
+
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()){
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
@@ -89,26 +97,26 @@ public class MapVO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(numberOfRows, numberOfColumns, obstacles, heroCarPlayer, heroCarAI,exitAI,exitPlayer);
+        return Objects.hash(numberOfRows, numberOfColumns, obstacles, heroCarPlayer, heroCarAI, exitAI, exitPlayer);
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String map = "";
-        map+= "numberOfRows: " + numberOfRows;
-        map+= "\nnumberOfColumns: " + numberOfColumns;
-        map+= "\nobstacles: ";
-        for(VehicleVO obstacle : obstacles){
-            map+= "\n" + obstacle;
+        map += "numberOfRows: " + numberOfRows;
+        map += "\nnumberOfColumns: " + numberOfColumns;
+        map += "\nobstacles: ";
+        for (VehicleVO obstacle : obstacles) {
+            map += "\n" + obstacle;
         }
-        map+= "\nheroCarPlayer" + heroCarPlayer;
-        map+= "\nexitPlayer" + exitPlayer;
-        map+= "\nheroCarAI" + heroCarAI;
-        map+= "\nexitAI" + exitAI;
+        map += "\nheroCarPlayer" + heroCarPlayer;
+        map += "\nexitPlayer" + exitPlayer;
+        map += "\nheroCarAI" + heroCarAI;
+        map += "\nexitAI" + exitAI;
         return map;
     }
 
-    public MapVO withValue(int verticalPosition, int horizontalPosition, VehicleVO vehicle){
+    public MapVO withValue(int verticalPosition, int horizontalPosition, VehicleVO vehicle) {
         Builder result = builder()
                 .withNumberOfRows(numberOfRows)
                 .withNumberOfColumns(numberOfColumns)
@@ -118,34 +126,31 @@ public class MapVO {
                 .withHeroCarPlayer(heroCarPlayer)
                 .withExitPlayer(exitPlayer);
 
-        if (heroCarAI.equals(vehicle)){
+        if (heroCarAI.equals(vehicle)) {
             VehicleVO newHeroCarAI = heroCarAI.withValue(verticalPosition, horizontalPosition);
             result.withHeroCarAI(newHeroCarAI);
-        }
-        else if(heroCarPlayer.equals(vehicle)){
+        } else if (heroCarPlayer.equals(vehicle)) {
             VehicleVO newHeroCarPlayer = heroCarPlayer.withValue(verticalPosition, horizontalPosition);
             result.withHeroCarPlayer(newHeroCarPlayer);
-        }
-        else if(obstacles.contains(vehicle)){
+        } else if (obstacles.contains(vehicle)) {
             List<VehicleVO> newObstacles = new ArrayList<>(obstacles);
             int index = newObstacles.indexOf(vehicle);
 
-            VehicleVO newObstacle = vehicle.withValue(verticalPosition,horizontalPosition);
-            newObstacles.set(index,newObstacle);
+            VehicleVO newObstacle = vehicle.withValue(verticalPosition, horizontalPosition);
+            newObstacles.set(index, newObstacle);
             result.withObstacles(newObstacles);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("The specified vehicle does not exist on this map.");
         }
 
         return result.build();
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
-    public static final class Builder{
+    public static final class Builder {
         private int numberOfRows;
         private int numberOfColumns;
         private List<VehicleVO> obstacles;
@@ -154,46 +159,46 @@ public class MapVO {
         private VehicleVO heroCarAI;
         private ExitVO exitAI;
 
-        public Builder withNumberOfRows(int numberOfRows){
+        public Builder withNumberOfRows(int numberOfRows) {
             this.numberOfRows = numberOfRows;
             return this;
         }
 
-        public Builder withNumberOfColumns(int numberOfColumns){
+        public Builder withNumberOfColumns(int numberOfColumns) {
             this.numberOfColumns = numberOfColumns;
             return this;
         }
 
-        public Builder withObstacles(List<VehicleVO> obstacles){
+        public Builder withObstacles(List<VehicleVO> obstacles) {
             this.obstacles = obstacles;
             return this;
         }
 
-        public Builder withHeroCarPlayer(VehicleVO heroCarPlayer){
+        public Builder withHeroCarPlayer(VehicleVO heroCarPlayer) {
             this.heroCarPlayer = heroCarPlayer;
             return this;
         }
 
-        public Builder withHeroCarAI(VehicleVO heroCarAI){
+        public Builder withHeroCarAI(VehicleVO heroCarAI) {
             this.heroCarAI = heroCarAI;
             return this;
         }
 
-        public Builder withExitAI(ExitVO exitAI){
+        public Builder withExitAI(ExitVO exitAI) {
             this.exitAI = exitAI;
             return this;
         }
 
-        public Builder withExitPlayer(ExitVO exitPlayer){
+        public Builder withExitPlayer(ExitVO exitPlayer) {
             this.exitPlayer = exitPlayer;
             return this;
         }
 
-        public MapVO build(){
-            if(heroCarAI == null || heroCarPlayer == null){
+        public MapVO build() {
+            if (heroCarAI == null || heroCarPlayer == null) {
                 throw new IllegalStateException("The board must contain a Player and an AI car!");
             }
-            if(exitPlayer == null || exitAI == null){
+            if (exitPlayer == null || exitAI == null) {
                 throw new IllegalStateException("The board must contain a Player and an AI exit!");
             }
 

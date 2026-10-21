@@ -8,13 +8,13 @@ public class ErrorCounter implements GameEventListener {
     private int errorCount = 0;
 
     @Override
-    public void onEvent(GameEvent event){
-        if(event.type() == GameEventType.ERROR){
+    public void onEvent(GameEvent event) {
+        if (event.type() == GameEventType.ERROR) {
             errorCount++;
         }
     }
 
-    public int getErrorCount(){
+    public int getErrorCount() {
         return errorCount;
     }
 }

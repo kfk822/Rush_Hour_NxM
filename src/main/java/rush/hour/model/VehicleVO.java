@@ -8,14 +8,14 @@ public class VehicleVO {
     private final int verticalPosition;
     private final int horizontalPosition;
 
-    private VehicleVO(Builder builder){
+    private VehicleVO(Builder builder) {
         this.vehicleLength = builder.vehicleLength;
         this.orientation = builder.orientation;
         this.horizontalPosition = builder.horizontalPosition;
         this.verticalPosition = builder.verticalPosition;
     }
 
-    public int getVehicleLength(){
+    public int getVehicleLength() {
         return vehicleLength;
     }
 
@@ -33,7 +33,7 @@ public class VehicleVO {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()){
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
@@ -51,14 +51,14 @@ public class VehicleVO {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "length(" + vehicleLength +
                 "), orientation(" + orientation +
                 "), verticalPosition(" + verticalPosition +
                 "), horizontalPosition(" + horizontalPosition + ")";
     }
 
-    public VehicleVO withValue(int verticalPosition, int horizontalPosition){
+    public VehicleVO withValue(int verticalPosition, int horizontalPosition) {
         return builder()
                 .withVehicleLength(vehicleLength)
                 .withOrientation(orientation)
@@ -67,41 +67,41 @@ public class VehicleVO {
                 .build();
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
-    public static final class Builder{
+    public static final class Builder {
         private int vehicleLength;
         private Orientation orientation;
         private int verticalPosition;
         private int horizontalPosition;
 
-        public Builder withVehicleLength(int length){
+        public Builder withVehicleLength(int length) {
             this.vehicleLength = length;
             return this;
         }
 
-        public Builder withOrientation(Orientation orientation){
+        public Builder withOrientation(Orientation orientation) {
             this.orientation = orientation;
             return this;
         }
 
-        public Builder withVerticalPosition(int verticalPosition){
+        public Builder withVerticalPosition(int verticalPosition) {
             this.verticalPosition = verticalPosition;
             return this;
         }
 
-        public Builder withHorizontalPosition(int horizontalPosition){
+        public Builder withHorizontalPosition(int horizontalPosition) {
             this.horizontalPosition = horizontalPosition;
             return this;
         }
 
-        public VehicleVO build(){
-            if(vehicleLength < 2 || vehicleLength > 3) {
+        public VehicleVO build() {
+            if (vehicleLength < 2 || vehicleLength > 3) {
                 throw new IllegalStateException("The length must be 2 or 3!");
             }
-            if(orientation == null){
+            if (orientation == null) {
                 throw new IllegalStateException("Orientation is null!");
             }
 
