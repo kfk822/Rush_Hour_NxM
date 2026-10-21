@@ -34,7 +34,6 @@ public class Main {
         ScannerMapReader scannerMapReader = new ScannerMapReader(mapScanner);
 
         MapPrinter mapPrinter = new MapPrinter();
-
         try {
 
 
@@ -47,6 +46,7 @@ public class Main {
 
             publisher.publish(new GameEvent(GameEventType.DEBUG, "Printing map to console"));
             mapPrinter.printMap(map);
+
         } catch (MapReaderException e) {
             publisher.publish(new GameEvent(GameEventType.ERROR, e.getMessage()));
         }

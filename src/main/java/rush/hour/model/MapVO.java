@@ -51,33 +51,6 @@ public class MapVO {
         return exitAI;
     }
 
-    public boolean isOccupied(int verticalPosition, int horizontalPosition) {
-        List<VehicleVO> vehicles = new ArrayList<>(obstacles);
-        vehicles.add(heroCarAI);
-        vehicles.add(heroCarPlayer);
-
-        for (VehicleVO vehicle : vehicles) {
-            int vehicleLength = vehicle.getVehicleLength();
-            int vehicleVerticalPosition = vehicle.getVerticalPosition();
-            int vehicleHorizontalPosition = vehicle.getHorizontalPosition();
-            if (vehicle.getOrientation() == Orientation.VERTICAL) {
-                if (horizontalPosition == vehicleHorizontalPosition &&
-                        verticalPosition > (vehicleVerticalPosition - vehicleLength) &&
-                        verticalPosition <= vehicleVerticalPosition) {
-                    return true;
-                }
-            } else {
-                if (verticalPosition == vehicleVerticalPosition &&
-                        horizontalPosition > (vehicleHorizontalPosition - vehicleLength) &&
-                        horizontalPosition <= vehicleHorizontalPosition) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -116,7 +89,7 @@ public class MapVO {
         return map;
     }
 
-    public MapVO withValue(int verticalPosition, int horizontalPosition, VehicleVO vehicle) {
+    public MapVO moveVehicle(MoveVO move) {
         Builder result = builder()
                 .withNumberOfRows(numberOfRows)
                 .withNumberOfColumns(numberOfColumns)
@@ -126,17 +99,17 @@ public class MapVO {
                 .withHeroCarPlayer(heroCarPlayer)
                 .withExitPlayer(exitPlayer);
 
-        if (heroCarAI.equals(vehicle)) {
-            VehicleVO newHeroCarAI = heroCarAI.withValue(verticalPosition, horizontalPosition);
+        if (heroCarAI.equals(move.getVehicle())) {
+            VehicleVO newHeroCarAI = heroCarAI.withValue(move.getTargetRow(), move.getTargetColumn());
             result.withHeroCarAI(newHeroCarAI);
-        } else if (heroCarPlayer.equals(vehicle)) {
-            VehicleVO newHeroCarPlayer = heroCarPlayer.withValue(verticalPosition, horizontalPosition);
+        } else if (heroCarPlayer.equals(move.getVehicle())) {
+            VehicleVO newHeroCarPlayer = heroCarPlayer.withValue(move.getTargetRow(), move.getTargetColumn());
             result.withHeroCarPlayer(newHeroCarPlayer);
-        } else if (obstacles.contains(vehicle)) {
+        } else if (obstacles.contains(move.getVehicle())) {
             List<VehicleVO> newObstacles = new ArrayList<>(obstacles);
-            int index = newObstacles.indexOf(vehicle);
+            int index = newObstacles.indexOf(move.getVehicle());
 
-            VehicleVO newObstacle = vehicle.withValue(verticalPosition, horizontalPosition);
+            VehicleVO newObstacle = move.getVehicle().withValue(move.getTargetRow(), move.getTargetColumn());
             newObstacles.set(index, newObstacle);
             result.withObstacles(newObstacles);
         } else {
