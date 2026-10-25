@@ -22,8 +22,24 @@ public class MapPrinter implements MapPrinterInterface {
 
         addExit(cellMap, map.getExitPlayer(), ExitType.PLAYER);
 
+        for (int i = -1; i < map.getNumberOfColumns() - 1; i++) {
+            if (i <= 0) {
+                System.out.printf("%3c", ' ');
+            } else {
+                System.out.printf("%3d", i);
+            }
+        }
+        System.out.println();
         for (int i = 0; i < map.getNumberOfRows(); i++) {
-            System.out.println(cellMap[i]);
+            if (i == 0 || i == map.getNumberOfRows() - 1) {
+                System.out.printf("%3c", ' ');
+            } else {
+                System.out.printf("%3c", 'a' + i - 1);
+            }
+            for (int j = 0; j < map.getNumberOfColumns(); j++) {
+                System.out.printf("%3c", cellMap[i][j]);
+            }
+            System.out.println();
         }
 
     }
