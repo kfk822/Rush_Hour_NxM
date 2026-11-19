@@ -1,7 +1,7 @@
 package rush.hour;
 
-import rush.hour.GameEngine.GameEngine;
-import rush.hour.GameEngine.RushHour;
+import rush.hour.gameengine.GameEngine;
+import rush.hour.gameengine.RushHour;
 
 public class Main {
     public static void main(String[] args) {

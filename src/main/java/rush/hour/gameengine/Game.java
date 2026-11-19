@@ -1,4 +1,4 @@
-package rush.hour.GameEngine;
+package rush.hour.gameengine;
 
 public interface Game {
     public void init();

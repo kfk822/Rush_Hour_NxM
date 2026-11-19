@@ -1,4 +1,4 @@
-package rush.hour.GameEngine;
+package rush.hour.gameengine;
 
 import rush.hour.Main;
 import rush.hour.config.GameConfig;
@@ -17,6 +17,7 @@ import rush.hour.service.map.parser.MapParser;
 import rush.hour.service.map.printer.MapPrinter;
 import rush.hour.service.map.reader.ScannerMapReader;
 import rush.hour.service.map.validator.MovementValidator;
+import rush.hour.service.map.win.WinDetector;
 import rush.hour.service.move.MoveMaker;
 import rush.hour.service.ui.printer.ConsolePrinter;
 import rush.hour.service.ui.reader.ScannerConsoleReader;
@@ -56,6 +57,8 @@ public class RushHour implements Game {
     private EnemyAI enemyAI;
     private Random random;
 
+    private WinDetector winDetector;
+
     private String username;
     private String moveChoice;
 
@@ -88,6 +91,8 @@ public class RushHour implements Game {
 
         random = new Random();
         enemyAI = new EnemyAI(random);
+
+        winDetector = new WinDetector();
 
         try {
             List<String> rawMap = scannerMapReader.readMap();
@@ -140,6 +145,12 @@ public class RushHour implements Game {
                     movementValidator.validateMove(map, move);
                     playerTurn = map.moveVehicle(move);
 
+                    if (winDetector.heroCarWon(playerTurn, playerTurn.getHeroCarPlayer(), playerTurn.getExitPlayer())) {
+                        isRunning = false;
+                        consolePrinter.printMessage("Player has won");
+                        gameState.setState(State.END_OF_GAME);
+                    }
+
                     do {
                         try {
                             MoveVO enemyAIMove = enemyAI.makeMove(playerTurn);
@@ -149,6 +160,12 @@ public class RushHour implements Game {
 
                         }
                     } while (aiTurn == null);
+
+                    if (winDetector.heroCarWon(aiTurn, aiTurn.getHeroCarAI(), aiTurn.getExitAI())) {
+                        isRunning = false;
+                        consolePrinter.printMessage("AI has won");
+                        gameState.setState(State.END_OF_GAME);
+                    }
 
 
                 } catch (MovementValidatorException | MoveMakerException e) {
@@ -173,6 +190,8 @@ public class RushHour implements Game {
         } else if (gameState.getState() == State.IN_GAME && moveChoice == null) {
             mapPrinter.printMap(map);
             consolePrinter.printMessage("-----------------------------------------");
+        } else if (gameState.getState() == State.END_OF_GAME) {
+            consolePrinter.printMessage("The game has ended!");
         }
     }
 
