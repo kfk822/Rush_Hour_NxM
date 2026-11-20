@@ -10,9 +10,12 @@ import rush.hour.event.listener.ConsoleEventPrinter;
 import rush.hour.event.listener.ErrorCounter;
 import rush.hour.model.*;
 import rush.hour.service.enemy.EnemyAI;
+import rush.hour.service.exceptions.JSONMapLoaderException;
 import rush.hour.service.exceptions.MapReaderException;
 import rush.hour.service.exceptions.MoveMakerException;
 import rush.hour.service.exceptions.MovementValidatorException;
+import rush.hour.service.map.json.loader.JSONMapLoader;
+import rush.hour.service.map.json.saver.JSONMapSaver;
 import rush.hour.service.map.parser.MapParser;
 import rush.hour.service.map.printer.MapPrinter;
 import rush.hour.service.map.reader.ScannerMapReader;
@@ -59,6 +62,9 @@ public class RushHour implements Game {
 
     private WinDetector winDetector;
 
+    private JSONMapLoader jsonMapLoader;
+    private JSONMapSaver jsonMapSaver;
+
     private String username;
     private String moveChoice;
 
@@ -94,6 +100,10 @@ public class RushHour implements Game {
 
         winDetector = new WinDetector();
 
+        jsonMapLoader = new JSONMapLoader();
+        jsonMapSaver = new JSONMapSaver();
+
+
         try {
             List<String> rawMap = scannerMapReader.readMap();
 
@@ -121,6 +131,15 @@ public class RushHour implements Game {
             if (choice == 1) {
                 gameState.setState(State.IN_GAME);
                 moveChoice = null;
+            } else if (choice == 2) {
+                try {
+                    map = jsonMapLoader.loadMap(
+                            inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME));
+                    gameState.setState(State.IN_GAME);
+                    moveChoice = null;
+                } catch (JSONMapLoaderException e) {
+                    consolePrinter.printMessage("Map not found!");
+                }
             } else {
                 isRunning = false;
             }
@@ -136,7 +155,12 @@ public class RushHour implements Game {
             playerTurn = null;
             enemyAI.nextTurn();
 
-            if (moveChoice.equals("quit")) {
+            if (moveChoice.equals("1")) {
+                jsonMapSaver.saveMap(map,
+                        inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME));
+                isRunning = false;
+                gameState.setState(State.END_OF_GAME);
+            } else if (moveChoice.equals("2")) {
                 isRunning = false;
                 gameState.setState(State.END_OF_GAME);
             } else {

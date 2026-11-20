@@ -34,8 +34,9 @@ class ConsolePrinterTest {
         String output = outputStreamCaptor.toString();
         assertTrue(output.contains("What do you want to do?"));
         assertTrue(output.contains("(1) Play game."));
-        assertTrue(output.contains("(2) Load previous game. [NOT AVAILABLE!]"));
+        assertTrue(output.contains("(2) Load previous game."));
         assertTrue(output.contains("(3) Show leaderboard. [NOT AVAILABLE!]"));
+        assertTrue(output.contains("(4) Quit the game."));
     }
 
     @Test
@@ -45,7 +46,8 @@ class ConsolePrinterTest {
         String output = outputStreamCaptor.toString();
         assertTrue(output.contains("Make your move!"));
         assertTrue(output.contains("Move format [(Vehicle head position)->(New Vehicle head position)]: a1->a2"));
-        assertTrue(output.contains("(quit) Quit the game."));
+        assertTrue(output.contains("(1) Save the game and quit"));
+        assertTrue(output.contains("(2) Quit the game."));
     }
 
     @Test

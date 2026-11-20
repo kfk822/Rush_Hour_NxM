@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InputValidatorTest {
+
     @Test
     void testGetValidInputShouldReturnUsernameWhenImmediatelyValid() {
         StubConsoleReader reader = new StubConsoleReader("Player1");
@@ -41,19 +42,19 @@ class InputValidatorTest {
 
     @Test
     void testGetValidInputShouldReturnChoiceWhenNumberIsInRange() {
-        StubConsoleReader reader = new StubConsoleReader("1");
+        StubConsoleReader reader = new StubConsoleReader("4");
         SpyConsolePrinter printer = new SpyConsolePrinter();
         InputValidator inputValidator = new InputValidator(reader, printer);
 
         String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.BEFORE_GAME_CHOICE);
 
-        assertEquals("1", result);
+        assertEquals("4", result);
         assertTrue(printer.printedStates.contains(State.BEFORE_GAME));
     }
 
     @Test
     void testGetValidInputShouldRetryWhenChoiceIsInvalidNumberOrOutOfRange() {
-        StubConsoleReader reader = new StubConsoleReader("abc", "4", "2");
+        StubConsoleReader reader = new StubConsoleReader("abc", "0", "5", "2");
         SpyConsolePrinter printer = new SpyConsolePrinter();
         InputValidator inputValidator = new InputValidator(reader, printer);
 
@@ -61,19 +62,30 @@ class InputValidatorTest {
 
         assertEquals("2", result);
         long errorCount = printer.messages.stream().filter("Invalid choice!"::equals).count();
-        assertEquals(2, errorCount);
-        assertEquals(3, reader.readCount);
+        assertEquals(3, errorCount);
+        assertEquals(4, reader.readCount);
     }
 
     @Test
-    void testGetValidInputShouldReturnQuitWhenQuitIsEntered() {
-        StubConsoleReader reader = new StubConsoleReader("quit");
+    void testGetValidInputShouldReturnSaveAndQuitWhenOneIsEnteredInGame() {
+        StubConsoleReader reader = new StubConsoleReader("1");
         SpyConsolePrinter printer = new SpyConsolePrinter();
         InputValidator inputValidator = new InputValidator(reader, printer);
 
         String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
 
-        assertEquals("quit", result);
+        assertEquals("1", result);
+    }
+
+    @Test
+    void testGetValidInputShouldReturnQuitWhenTwoIsEnteredInGame() {
+        StubConsoleReader reader = new StubConsoleReader("2");
+        SpyConsolePrinter printer = new SpyConsolePrinter();
+        InputValidator inputValidator = new InputValidator(reader, printer);
+
+        String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
+
+        assertEquals("2", result);
     }
 
     @Test
@@ -99,6 +111,31 @@ class InputValidatorTest {
         long errorCount = printer.messages.stream().filter("Invalid choice!"::equals).count();
         assertEquals(3, errorCount);
         assertEquals(4, reader.readCount);
+    }
+
+    @Test
+    void testGetValidInputShouldReturnMapFileNameWhenImmediatelyValid() {
+        StubConsoleReader reader = new StubConsoleReader("saved_map");
+        SpyConsolePrinter printer = new SpyConsolePrinter();
+        InputValidator inputValidator = new InputValidator(reader, printer);
+
+        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.MAP_FILE_NAME);
+
+        assertEquals("saved_map", result);
+        assertTrue(printer.messages.contains("What is the name of the map?"));
+    }
+
+    @Test
+    void testGetValidInputShouldRetryWhenMapFileNameIsEmptyAtFirst() {
+        StubConsoleReader reader = new StubConsoleReader("", "my_map");
+        SpyConsolePrinter printer = new SpyConsolePrinter();
+        InputValidator inputValidator = new InputValidator(reader, printer);
+
+        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.MAP_FILE_NAME);
+
+        assertEquals("my_map", result);
+        assertTrue(printer.messages.contains("Invalid map name!"));
+        assertEquals(2, reader.readCount);
     }
 
     private static class StubConsoleReader implements ConsoleReader {

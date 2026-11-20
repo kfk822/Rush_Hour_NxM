@@ -34,7 +34,7 @@ public class InputValidator {
                     int choice;
                     try {
                         choice = Integer.parseInt(input);
-                        if (choice > 0 && choice < 4) {
+                        if (choice > 0 && choice <= 4) {
                             validInput = true;
                         } else {
                             consolePrinter.printMessage("Invalid choice!");
@@ -46,11 +46,21 @@ public class InputValidator {
                 case IN_GAME_CHOICE:
                     consolePrinter.printGameStateChoices(state);
                     input = consoleReader.read();
-                    if (input.equals("quit") || isValidMoveFormat(input)) {
+                    if (input.equals("1") || input.equals("2") || isValidMoveFormat(input)) {
                         validInput = true;
                     } else {
                         consolePrinter.printMessage("Invalid choice!");
                     }
+                    break;
+                case MAP_FILE_NAME:
+                    consolePrinter.printMessage("What is the name of the map?");
+                    input = consoleReader.read();
+                    if (input.isEmpty()) {
+                        consolePrinter.printMessage("Invalid map name!");
+                    } else {
+                        validInput = true;
+                    }
+                    break;
                 default:
                     break;
             }
