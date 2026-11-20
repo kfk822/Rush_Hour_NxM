@@ -8,7 +8,7 @@ public class ConsolePrinter {
             System.out.println("What do you want to do?");
             System.out.println("(1) Play game.");
             System.out.println("(2) Load previous game.");
-            System.out.println("(3) Show leaderboard. [NOT AVAILABLE!]");
+            System.out.println("(3) Show leaderboard.");
             System.out.println("(4) Quit the game.");
         }
         if (state == State.IN_GAME) {

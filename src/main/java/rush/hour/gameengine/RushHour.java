@@ -9,6 +9,7 @@ import rush.hour.event.listener.AuditLoggerListener;
 import rush.hour.event.listener.ConsoleEventPrinter;
 import rush.hour.event.listener.ErrorCounter;
 import rush.hour.model.*;
+import rush.hour.service.database.DatabaseManager;
 import rush.hour.service.enemy.EnemyAI;
 import rush.hour.service.exceptions.JSONMapLoaderException;
 import rush.hour.service.exceptions.MapReaderException;
@@ -65,6 +66,8 @@ public class RushHour implements Game {
     private JSONMapLoader jsonMapLoader;
     private JSONMapSaver jsonMapSaver;
 
+    private DatabaseManager databaseManager;
+
     private String username;
     private String moveChoice;
 
@@ -103,6 +106,7 @@ public class RushHour implements Game {
         jsonMapLoader = new JSONMapLoader();
         jsonMapSaver = new JSONMapSaver();
 
+        databaseManager = new DatabaseManager();
 
         try {
             List<String> rawMap = scannerMapReader.readMap();
@@ -120,6 +124,9 @@ public class RushHour implements Game {
         consolePrinter.printMessage("Welcome to the Rush Hour game!");
 
         username = inputValidator.getValidInput(gameState.getState(), InputType.NAME);
+        if (!databaseManager.playerExists(username)) {
+            databaseManager.addPlayer(username);
+        }
     }
 
     @Override
@@ -140,6 +147,11 @@ public class RushHour implements Game {
                 } catch (JSONMapLoaderException e) {
                     consolePrinter.printMessage("Map not found!");
                 }
+            } else if (choice == 3) {
+                String leaderboard = databaseManager.getLeaderboard();
+                consolePrinter.printMessage("Leaderboard:");
+                consolePrinter.printMessage(leaderboard);
+
             } else {
                 isRunning = false;
             }
@@ -172,6 +184,7 @@ public class RushHour implements Game {
                     if (winDetector.heroCarWon(playerTurn, playerTurn.getHeroCarPlayer(), playerTurn.getExitPlayer())) {
                         isRunning = false;
                         consolePrinter.printMessage("Player has won");
+                        databaseManager.increaseScore(username);
                         gameState.setState(State.END_OF_GAME);
                     }
 
@@ -224,6 +237,7 @@ public class RushHour implements Game {
         System.out.println(errorCounter.getErrorCount());
         mapScanner.close();
         consoleScanner.close();
+        databaseManager.close();
     }
 
     @Override
