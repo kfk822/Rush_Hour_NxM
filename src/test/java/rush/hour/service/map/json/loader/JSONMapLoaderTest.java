@@ -99,15 +99,29 @@ class JSONMapLoaderTest {
 
     @Test
     void testLoadMapShouldThrowExceptionWhenFileDoesNotExist() {
-        assertThrows(JSONMapLoaderException.class,
+        JSONMapLoaderException exception = assertThrows(JSONMapLoaderException.class,
                 () -> jsonMapLoader.loadMap("non_existent_map_file"));
+
+        assertEquals("Map not found!", exception.getMessage());
     }
 
     @Test
     void testLoadMapShouldThrowExceptionWhenJsonIsMalformed() throws IOException {
         Files.writeString(invalidJsonFile.toPath(), "{ invalid json content");
 
-        assertThrows(JSONMapLoaderException.class,
+        JSONMapLoaderException exception = assertThrows(JSONMapLoaderException.class,
                 () -> jsonMapLoader.loadMap(INVALID_JSON_FILE_NAME));
+
+        assertEquals("Invalid map!", exception.getMessage());
+    }
+
+    @Test
+    void testLoadMapShouldThrowExceptionWhenJsonStructureIsInvalid() throws IOException {
+        Files.writeString(invalidJsonFile.toPath(), "{}");
+
+        JSONMapLoaderException exception = assertThrows(JSONMapLoaderException.class,
+                () -> jsonMapLoader.loadMap(INVALID_JSON_FILE_NAME));
+
+        assertEquals("Invalid map!", exception.getMessage());
     }
 }

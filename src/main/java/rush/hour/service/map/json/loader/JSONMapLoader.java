@@ -19,47 +19,28 @@ import java.util.List;
 public class JSONMapLoader {
     public MapVO loadMap(String fileName) throws JSONMapLoaderException {
         try {
-            File file = new File( "maps\\" + fileName + ".json");
-            Object object = new JSONParser().parse(new FileReader(file));
-            JSONObject jsonObject = (JSONObject) object;
-            JSONObject rawMap = (JSONObject) jsonObject.get("Map");
-            int numberOfRows = ((Long) rawMap.get("NumberOfRows")).intValue();
-            int numberOfColumns = ((Long) rawMap.get("NumberOfColumns")).intValue();
-            JSONArray rawObstacles = (JSONArray) rawMap.get("Obstacles");
-            JSONObject rawHeroCarPlayer = (JSONObject) rawMap.get("HeroCarPlayer");
-            JSONObject rawHeroCarAI = (JSONObject) rawMap.get("HeroCarAI");
-            JSONObject rawExitPlayer = (JSONObject) rawMap.get("ExitPlayer");
-            JSONObject rawExitAI = (JSONObject) rawMap.get("ExitAI");
+            JSONObject rawMap = parseMap(fileName);
+
+            int numberOfRows = getInt(rawMap, "NumberOfRows");
+            int numberOfColumns = getInt(rawMap, "NumberOfColumns");
+
+            JSONArray rawObstacles = getJSONArray(rawMap, "Obstacles");
             List<VehicleVO> obstacles = new ArrayList<>();
+
             for (Object objectObstacle : rawObstacles) {
                 JSONObject rawObstacle = (JSONObject) objectObstacle;
-                obstacles.add(VehicleVO.builder()
-                        .withHorizontalPosition(((Long) rawObstacle.get("HorizontalPosition")).intValue())
-                        .withVerticalPosition(((Long)  rawObstacle.get("VerticalPosition")).intValue())
-                        .withOrientation(Orientation.valueOf((String) rawObstacle.get("Orientation")))
-                        .withVehicleLength(((Long) rawObstacle.get("Length")).intValue())
-                        .build());
+
+                obstacles.add(getVehicleVO(rawObstacle));
             }
-            VehicleVO heroCarPlayer = VehicleVO.builder()
-                    .withHorizontalPosition(((Long) rawHeroCarPlayer.get("HorizontalPosition")).intValue())
-                    .withVerticalPosition(((Long)  rawHeroCarPlayer.get("VerticalPosition")).intValue())
-                    .withOrientation(Orientation.valueOf((String) rawHeroCarPlayer.get("Orientation")))
-                    .withVehicleLength(((Long)  rawHeroCarPlayer.get("Length")).intValue())
-                    .build();
-            VehicleVO heroCarAI = VehicleVO.builder()
-                    .withHorizontalPosition(((Long)  rawHeroCarAI.get("HorizontalPosition")).intValue())
-                    .withVerticalPosition(((Long)  rawHeroCarAI.get("VerticalPosition")).intValue())
-                    .withOrientation(Orientation.valueOf((String) rawHeroCarAI.get("Orientation")))
-                    .withVehicleLength(((Long)  rawHeroCarAI.get("Length")).intValue())
-                    .build();
-            ExitVO exitPlayer = ExitVO.builder()
-                    .withHorizontalPosition(((Long)  rawExitPlayer.get("HorizontalPosition")).intValue())
-                    .withVerticalPosition(((Long)  rawExitPlayer.get("VerticalPosition")).intValue())
-                    .build();
-            ExitVO exitAI = ExitVO.builder()
-                    .withHorizontalPosition(((Long)  rawExitAI.get("HorizontalPosition")).intValue())
-                    .withVerticalPosition(((Long)  rawExitAI.get("VerticalPosition")).intValue())
-                    .build();
+
+            VehicleVO heroCarPlayer = getVehicleVO(rawMap.get("HeroCarPlayer"));
+
+            VehicleVO heroCarAI = getVehicleVO(rawMap.get("HeroCarAI"));
+
+            ExitVO exitPlayer = getExitVO(rawMap.get("ExitPlayer"));
+
+            ExitVO exitAI = getExitVO(rawMap.get("ExitAI"));
+
             return MapVO.builder()
                     .withNumberOfRows(numberOfRows)
                     .withNumberOfColumns(numberOfColumns)
@@ -71,9 +52,44 @@ public class JSONMapLoader {
                     .build();
         } catch (IOException e) {
             throw new JSONMapLoaderException("Map not found!");
-        }
-        catch (ParseException | IllegalArgumentException | IllegalStateException e){
+        } catch (ParseException | IllegalArgumentException | IllegalStateException
+                 | NullPointerException | ClassCastException e) {
             throw new JSONMapLoaderException("Invalid map!");
         }
+    }
+
+    private JSONObject parseMap(String fileName) throws IOException, ParseException {
+        File file = new File("maps", fileName + ".json");
+        try (FileReader reader = new FileReader(file)) {
+            JSONObject root = (JSONObject) new JSONParser().parse(reader);
+            return (JSONObject) root.get("Map");
+        }
+
+    }
+
+    private VehicleVO getVehicleVO(Object object) {
+        JSONObject jsonObject = (JSONObject) object;
+        return VehicleVO.builder()
+                .withHorizontalPosition(getInt(jsonObject, "HorizontalPosition"))
+                .withVerticalPosition(getInt(jsonObject, "VerticalPosition"))
+                .withOrientation(Orientation.valueOf((String) jsonObject.get("Orientation")))
+                .withVehicleLength(getInt(jsonObject, "Length"))
+                .build();
+    }
+
+    private ExitVO getExitVO(Object object) {
+        JSONObject jsonObject = (JSONObject) object;
+        return ExitVO.builder()
+                .withHorizontalPosition(getInt(jsonObject, "HorizontalPosition"))
+                .withVerticalPosition(getInt(jsonObject, "VerticalPosition"))
+                .build();
+    }
+
+    private int getInt(JSONObject jsonObject, String name) {
+        return ((Long) jsonObject.get(name)).intValue();
+    }
+
+    private JSONArray getJSONArray(JSONObject jsonObject, String name) {
+        return (JSONArray) jsonObject.get(name);
     }
 }
