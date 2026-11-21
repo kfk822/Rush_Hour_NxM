@@ -23,6 +23,14 @@ class EnemyAITest {
 
     @BeforeEach
     void setUp() {
+        /*
+        #######
+        #.....#
+        #apP..E
+        #A....#
+        #.....#
+        #X#####
+         */
         horizontalPlayerCar = new VehicleVO.Builder()
                 .withVerticalPosition(2)
                 .withHorizontalPosition(3)

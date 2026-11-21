@@ -11,32 +11,31 @@ import java.util.Random;
 
 public class EnemyAI {
     private List<MoveVO> chosenMoves;
-    Random r;
+    private final Random random;
 
-    public EnemyAI(Random r) {
+    public EnemyAI(Random random) {
         chosenMoves = new ArrayList<>();
-        this.r = r;
+        this.random = random;
     }
 
     public MoveVO makeMove(MapVO map) {
-        List<VehicleVO> vehicles = new ArrayList<>(map.getObstacles());
-        vehicles.add(map.getHeroCarAI());
-        vehicles.add(map.getHeroCarPlayer());
+        List<VehicleVO> vehicles = getAllVehicles(map);
 
         MoveVO chosenMove;
 
         do {
+            int randomVehicleIndex = random.nextInt(vehicles.size());
+            VehicleVO chosenVehicle = vehicles.get(randomVehicleIndex);
 
-            VehicleVO chosenVehicle = vehicles.get(r.nextInt(vehicles.size()));
-            int targetRow;
-            int targetColumn;
+            // Move along the vehicle's orientation
+            int targetRow = chosenVehicle.getVerticalPosition();
+            int targetColumn = chosenVehicle.getHorizontalPosition();
 
+            // Exclude the first and last rows/columns since they are walls
             if (chosenVehicle.getOrientation() == Orientation.HORIZONTAL) {
-                targetRow = chosenVehicle.getVerticalPosition();
-                targetColumn = r.nextInt(map.getNumberOfColumns()) + 1;
+                targetColumn = random.nextInt(map.getNumberOfColumns() - 2) + 1;
             } else {
-                targetRow = r.nextInt(map.getNumberOfRows()) + 1;
-                targetColumn = chosenVehicle.getHorizontalPosition();
+                targetRow = random.nextInt(map.getNumberOfRows() - 2) + 1;
             }
 
             chosenMove = new MoveVO.Builder()
@@ -45,9 +44,7 @@ public class EnemyAI {
                     .withTargetRow(targetRow)
                     .build();
 
-        } while (chosenMoves.contains(chosenMove) ||
-                chosenMove.getTargetRow() == chosenMove.getVehicle().getVerticalPosition() &&
-                        chosenMove.getTargetColumn() == chosenMove.getVehicle().getHorizontalPosition());
+        } while (isInvalidMove(chosenMove));
 
         chosenMoves.add(chosenMove);
 
@@ -57,6 +54,22 @@ public class EnemyAI {
 
     public void nextTurn() {
         chosenMoves = new ArrayList<>();
+    }
+
+    private List<VehicleVO> getAllVehicles(MapVO map) {
+        List<VehicleVO> vehicles = new ArrayList<>(map.getObstacles());
+        vehicles.add(map.getHeroCarAI());
+        vehicles.add(map.getHeroCarPlayer());
+
+        return vehicles;
+    }
+
+    private boolean isInvalidMove(MoveVO move) {
+        boolean isStationary = move.getTargetRow() == move.getVehicle().getVerticalPosition() &&
+                move.getTargetColumn() == move.getVehicle().getHorizontalPosition();
+
+        return chosenMoves.contains(move) || isStationary;
+
     }
 
 }
