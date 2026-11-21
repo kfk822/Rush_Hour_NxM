@@ -22,7 +22,7 @@ public class ScannerMapReader implements MapReaderInterface {
         }
 
         if (result.isEmpty()) {
-            throw new MapReaderException("The map input is empty");
+            throw new MapReaderException("Default map not found!");
         }
 
         return result;

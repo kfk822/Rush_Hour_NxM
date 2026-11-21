@@ -6,15 +6,11 @@ import rush.hour.event.GameEvent;
 import rush.hour.event.GameEventPublisher;
 import rush.hour.event.GameEventType;
 import rush.hour.event.listener.AuditLoggerListener;
-import rush.hour.event.listener.ConsoleEventPrinter;
 import rush.hour.event.listener.ErrorCounter;
 import rush.hour.model.*;
 import rush.hour.service.database.DatabaseManager;
 import rush.hour.service.enemy.EnemyAI;
-import rush.hour.service.exceptions.JSONMapLoaderException;
-import rush.hour.service.exceptions.MapReaderException;
-import rush.hour.service.exceptions.MoveMakerException;
-import rush.hour.service.exceptions.MovementValidatorException;
+import rush.hour.service.exceptions.*;
 import rush.hour.service.map.json.loader.JSONMapLoader;
 import rush.hour.service.map.json.saver.JSONMapSaver;
 import rush.hour.service.map.parser.MapParser;
@@ -81,10 +77,8 @@ public class RushHour implements Game {
         publisher = new GameEventPublisher();
         errorCounter = new ErrorCounter();
         publisher.subscribe(new AuditLoggerListener());
-        publisher.subscribe(new ConsoleEventPrinter());
         publisher.subscribe(errorCounter);
 
-        publisher.publish(new GameEvent(GameEventType.DEBUG, "Reading map from file"));
         mapScanner = new Scanner(Main.class.getClassLoader().getResourceAsStream(config.getBaseMapPath()));
         scannerMapReader = new ScannerMapReader(mapScanner);
 
@@ -106,26 +100,46 @@ public class RushHour implements Game {
         jsonMapLoader = new JSONMapLoader();
         jsonMapSaver = new JSONMapSaver();
 
-        databaseManager = new DatabaseManager();
+        try {
+            log(GameEventType.DEBUG, "Connecting to the database.");
+            databaseManager = new DatabaseManager();
+        } catch (DatabaseManagerException e) {
+            log(GameEventType.ERROR, e.getMessage());
+            isRunning = false;
+            return;
+        }
 
         try {
+            log(GameEventType.DEBUG, "Reading default map.");
             List<String> rawMap = scannerMapReader.readMap();
 
-            publisher.publish(new GameEvent(GameEventType.DEBUG, "Parsing map"));
+            log(GameEventType.DEBUG, "Parsing default map.");
             mapParser = new MapParser(config.getNumberOfRows() + config.getWallSize(),
                     config.getNumberOfColumns() + config.getWallSize());
             map = mapParser.parseMap(rawMap);
+            log(GameEventType.INFO, "Default map loaded.");
 
-        } catch (MapReaderException e) {
-            publisher.publish(new GameEvent(GameEventType.ERROR, e.getMessage()));
+        } catch (MapReaderException | IllegalStateException | IllegalArgumentException e) {
+            log(GameEventType.ERROR, e.getMessage());
+            isRunning = false;
+            return;
         }
 
         gameState.setState(State.BEFORE_GAME);
+        log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
         consolePrinter.printMessage("Welcome to the Rush Hour game!");
 
         username = inputValidator.getValidInput(gameState.getState(), InputType.NAME);
-        if (!databaseManager.playerExists(username)) {
-            databaseManager.addPlayer(username);
+        log(GameEventType.INFO, "Player " + username + " joined the game.");
+        try {
+            if (!databaseManager.playerExists(username)) {
+
+                databaseManager.addPlayer(username);
+                log(GameEventType.DEBUG, "Player " + username + " added to the database.");
+            }
+        } catch (DatabaseManagerException e) {
+            log(GameEventType.ERROR, e.getMessage());
+            isRunning = false;
         }
     }
 
@@ -137,20 +151,30 @@ public class RushHour implements Game {
 
             if (choice == 1) {
                 gameState.setState(State.IN_GAME);
+                log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
                 moveChoice = null;
             } else if (choice == 2) {
                 try {
-                    map = jsonMapLoader.loadMap(
-                            inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME));
+                    String filename = inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME);
+                    map = jsonMapLoader.loadMap(filename);
+                    log(GameEventType.INFO, "Map loaded from JSON file: " + filename + ".json");
                     gameState.setState(State.IN_GAME);
+                    log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
                     moveChoice = null;
                 } catch (JSONMapLoaderException e) {
-                    consolePrinter.printMessage("Map not found!");
+                    consolePrinter.printMessage(e.getMessage());
+                    log(GameEventType.WARN, e.getMessage());
                 }
             } else if (choice == 3) {
-                String leaderboard = databaseManager.getLeaderboard();
-                consolePrinter.printMessage("Leaderboard:");
-                consolePrinter.printMessage(leaderboard);
+                try {
+                    log(GameEventType.DEBUG, "Printing the leaderboard.");
+                    String leaderboard = databaseManager.getLeaderboard();
+                    consolePrinter.printMessage("Leaderboard:");
+                    consolePrinter.printMessage(leaderboard);
+                } catch (DatabaseManagerException e) {
+                    log(GameEventType.ERROR, e.getMessage());
+                    isRunning = false;
+                }
 
             } else {
                 isRunning = false;
@@ -168,45 +192,71 @@ public class RushHour implements Game {
             enemyAI.nextTurn();
 
             if (moveChoice.equals("1")) {
-                jsonMapSaver.saveMap(map,
-                        inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME));
-                isRunning = false;
-                gameState.setState(State.END_OF_GAME);
+                String filename = inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME);
+                try {
+                    log(GameEventType.DEBUG, "Saving map.");
+                    jsonMapSaver.saveMap(map, filename);
+                    log(GameEventType.INFO, "Map saved to JSON file: " + filename + ".json");
+                    isRunning = false;
+                    gameState.setState(State.END_OF_GAME);
+                    log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
+                } catch (JSONMapSaverException e) {
+                    log(GameEventType.ERROR, e.getMessage());
+                    isRunning = false;
+                }
             } else if (moveChoice.equals("2")) {
+                log(GameEventType.DEBUG, "Leaving the game.");
                 isRunning = false;
                 gameState.setState(State.END_OF_GAME);
+                log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
             } else {
                 try {
+                    log(GameEventType.DEBUG, "Player " + username + "'s turn.");
                     MoveVO move = moveMaker.makeMove(moveChoice, map);
                     movementValidator.validateMove(map, move);
                     playerTurn = map.moveVehicle(move);
+                    log(GameEventType.DEBUG, "Player " + username + " moved: " + moveChoice);
 
                     if (winDetector.heroCarWon(playerTurn, playerTurn.getHeroCarPlayer(), playerTurn.getExitPlayer())) {
                         isRunning = false;
-                        consolePrinter.printMessage("Player has won");
-                        databaseManager.increaseScore(username);
+                        consolePrinter.printMessage("Player '" + username + "' won.");
+                        log(GameEventType.INFO, "Player '" + username + "' won.");
+                        try {
+                            databaseManager.increaseScore(username);
+                            log(GameEventType.DEBUG, "Player " + username + "'s score increased");
+                        } catch (DatabaseManagerException e) {
+                            log(GameEventType.ERROR, e.getMessage());
+                        }
                         gameState.setState(State.END_OF_GAME);
+                        log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
+                        return;
                     }
 
+                    int attempt = 1;
                     do {
                         try {
                             MoveVO enemyAIMove = enemyAI.makeMove(playerTurn);
                             movementValidator.validateMove(playerTurn, enemyAIMove);
                             aiTurn = playerTurn.moveVehicle(enemyAIMove);
+                            log(GameEventType.DEBUG, "AI moved on attempt " + attempt);
                         } catch (MovementValidatorException e) {
-
+                            attempt++;
                         }
                     } while (aiTurn == null);
 
                     if (winDetector.heroCarWon(aiTurn, aiTurn.getHeroCarAI(), aiTurn.getExitAI())) {
                         isRunning = false;
-                        consolePrinter.printMessage("AI has won");
+                        consolePrinter.printMessage("AI won");
+                        log(GameEventType.INFO, "AI won");
                         gameState.setState(State.END_OF_GAME);
+                        log(GameEventType.INFO, "New game state: " + gameState.getState().toString());
+                        return;
                     }
 
 
                 } catch (MovementValidatorException | MoveMakerException e) {
                     consolePrinter.printMessage(e.getMessage());
+                    log(GameEventType.WARN, e.getMessage());
                     moveChoice = null;
                     return;
                 }
@@ -220,11 +270,14 @@ public class RushHour implements Game {
     @Override
     public void render() {
         if (gameState.getState() == State.IN_GAME && moveChoice != null) {
+            log(GameEventType.DEBUG, "Printing player " + username + "'s turn.");
             mapPrinter.printMap(playerTurn);
+            log(GameEventType.DEBUG, "Printing AI's turn.");
             consolePrinter.printMessage("AI's turn");
             mapPrinter.printMap(aiTurn);
             consolePrinter.printMessage("-----------------------------------------");
         } else if (gameState.getState() == State.IN_GAME && moveChoice == null) {
+            log(GameEventType.DEBUG, "Printing map.");
             mapPrinter.printMap(map);
             consolePrinter.printMessage("-----------------------------------------");
         } else if (gameState.getState() == State.END_OF_GAME) {
@@ -234,14 +287,21 @@ public class RushHour implements Game {
 
     @Override
     public void terminate() {
-        System.out.println(errorCounter.getErrorCount());
+        log(GameEventType.DEBUG, "Terminating.");
+        log(GameEventType.DEBUG, "Error count: " + errorCounter.getErrorCount());
         mapScanner.close();
         consoleScanner.close();
-        databaseManager.close();
+        if (databaseManager != null) {
+            databaseManager.close();
+        }
     }
 
     @Override
     public boolean getIsRunning() {
         return isRunning;
+    }
+
+    private void log(GameEventType type, String message) {
+        publisher.publish(new GameEvent(type, message));
     }
 }

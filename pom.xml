@@ -16,6 +16,8 @@
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.11.0</mockito.version>
         <logback.version>1.5.6</logback.version>
+        <build.mode>release</build.mode>
+        <log.level>WARN</log.level>
     </properties>
 
     <dependencies>
@@ -59,7 +61,47 @@
         </dependency>
     </dependencies>
 
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <log.level>WARN</log.level>
+                <build.mode>release</build.mode>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>debug</id>
+            <properties>
+                <log.level>DEBUG</log.level>
+                <build.mode>debug</build.mode>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>logback.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>logback.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -149,5 +191,7 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <finalName>${project.artifactId}-${build.mode}</finalName>
     </build>
 </project>

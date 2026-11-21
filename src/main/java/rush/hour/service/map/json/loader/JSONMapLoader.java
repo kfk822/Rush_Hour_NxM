@@ -69,8 +69,11 @@ public class JSONMapLoader {
                     .withExitPlayer(exitPlayer)
                     .withExitAI(exitAI)
                     .build();
-        } catch (IOException | ParseException e) {
-            throw new JSONMapLoaderException(e.getMessage());
+        } catch (IOException e) {
+            throw new JSONMapLoaderException("Map not found!");
+        }
+        catch (ParseException | IllegalArgumentException | IllegalStateException e){
+            throw new JSONMapLoaderException("Invalid map!");
         }
     }
 }
