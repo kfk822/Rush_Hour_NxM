@@ -29,7 +29,7 @@ public class InputValidator {
                     }
                     break;
                 case BEFORE_GAME_CHOICE:
-                    consolePrinter.printGameStateChoices(state);
+                    consolePrinter.printBeforeGameChoices();
                     input = consoleReader.read();
                     int choice;
                     try {
@@ -44,7 +44,7 @@ public class InputValidator {
                     }
                     break;
                 case IN_GAME_CHOICE:
-                    consolePrinter.printGameStateChoices(state);
+                    consolePrinter.printInGameChoices();
                     input = consoleReader.read();
                     if (input.equals("1") || input.equals("2") || isValidMoveFormat(input)) {
                         validInput = true;

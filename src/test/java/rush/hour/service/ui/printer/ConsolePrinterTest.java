@@ -29,7 +29,7 @@ class ConsolePrinterTest {
 
     @Test
     void testPrintGameStateChoicesShouldPrintMenuWhenStateIsBeforeGame() {
-        consolePrinter.printGameStateChoices(State.BEFORE_GAME);
+        consolePrinter.printBeforeGameChoices();
 
         String output = outputStreamCaptor.toString();
         assertTrue(output.contains("What do you want to do?"));
@@ -41,7 +41,7 @@ class ConsolePrinterTest {
 
     @Test
     void testPrintGameStateChoicesShouldPrintPromptWhenStateIsInGame() {
-        consolePrinter.printGameStateChoices(State.IN_GAME);
+        consolePrinter.printInGameChoices();
 
         String output = outputStreamCaptor.toString();
         assertTrue(output.contains("Make your move!"));
