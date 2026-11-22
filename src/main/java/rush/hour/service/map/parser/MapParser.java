@@ -1,6 +1,10 @@
 package rush.hour.service.map.parser;
 
-import rush.hour.model.*;
+import rush.hour.model.CellTypes;
+import rush.hour.model.ExitVO;
+import rush.hour.model.MapVO;
+import rush.hour.model.Orientation;
+import rush.hour.model.VehicleVO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +12,14 @@ import java.util.List;
 public class MapParser {
     private final int numberOfRows;
     private final int numberOfColumns;
+    private final List<Character> horizontalVehicles;
 
     public MapParser(int numberOfRows, int numberOFColumns) {
         this.numberOfRows = numberOfRows;
         this.numberOfColumns = numberOFColumns;
+        this.horizontalVehicles = new ArrayList<>();
+
+        fillSymbols();
     }
 
     public MapVO parseMap(List<String> rawMap) {
@@ -21,21 +29,21 @@ public class MapParser {
         ExitVO exitPlayer = null;
         ExitVO exitAI = null;
 
-        for (int row = 0; row < rawMap.size(); row++) {
-            for (int column = 0; column < rawMap.get(row).length(); column++) {
+        for (int row = 0; row < numberOfRows; row++) {
+            for (int column = 0; column < numberOfColumns; column++) {
                 char currentElement = rawMap.get(row).charAt(column);
-                if (currentElement == FileCellTypes.VERTICAL_OBSTACLE.getHead() ||
-                        currentElement == FileCellTypes.HORIZONTAL_OBSTACLE.getHead()) {
+                if (currentElement == CellTypes.VERTICAL_OBSTACLE.getSymbol() ||
+                        currentElement == CellTypes.HORIZONTAL_OBSTACLE.getSymbol()) {
                     obstacles.add(createVehicle(rawMap, row, column));
-                } else if (currentElement == FileCellTypes.VERTICAL_PLAYER.getHead() ||
-                        currentElement == FileCellTypes.HORIZONTAL_PLAYER.getHead()) {
+                } else if (currentElement == CellTypes.VERTICAL_PLAYER.getSymbol() ||
+                        currentElement == CellTypes.HORIZONTAL_PLAYER.getSymbol()) {
                     heroCarPlayer = createVehicle(rawMap, row, column);
-                } else if (currentElement == FileCellTypes.VERTICAL_AI.getHead() ||
-                        currentElement == FileCellTypes.HORIZONTAL_AI.getHead()) {
+                } else if (currentElement == CellTypes.VERTICAL_AI.getSymbol() ||
+                        currentElement == CellTypes.HORIZONTAL_AI.getSymbol()) {
                     heroCarAI = createVehicle(rawMap, row, column);
-                } else if (currentElement == FileCellTypes.AI_EXIT.getHead()) {
+                } else if (currentElement == CellTypes.AI_EXIT.getSymbol()) {
                     exitAI = createExit(row, column);
-                } else if (currentElement == FileCellTypes.PLAYER_EXIT.getHead()) {
+                } else if (currentElement == CellTypes.PLAYER_EXIT.getSymbol()) {
                     exitPlayer = createExit(row, column);
                 }
             }
@@ -59,17 +67,11 @@ public class MapParser {
         char vehicleHead = rawMap.get(row).charAt(column);
         char vehicleBody;
 
-        if (vehicleHead == FileCellTypes.HORIZONTAL_AI.getHead() ||
-                vehicleHead == FileCellTypes.HORIZONTAL_PLAYER.getHead() ||
-                vehicleHead == FileCellTypes.HORIZONTAL_OBSTACLE.getHead()) {
+        if (horizontalVehicles.contains(vehicleHead)) {
             orientation = Orientation.HORIZONTAL;
-        } else {
-            orientation = Orientation.VERTICAL;
-        }
-
-        if (orientation == Orientation.HORIZONTAL) {
             vehicleBody = rawMap.get(row).charAt(column - 2);
         } else {
+            orientation = Orientation.VERTICAL;
             vehicleBody = rawMap.get(row - 2).charAt(column);
         }
 
@@ -94,4 +96,11 @@ public class MapParser {
                 .withVerticalPosition(row)
                 .build();
     }
+
+    private void fillSymbols() {
+        horizontalVehicles.add(CellTypes.HORIZONTAL_PLAYER.getSymbol());
+        horizontalVehicles.add(CellTypes.HORIZONTAL_AI.getSymbol());
+        horizontalVehicles.add(CellTypes.HORIZONTAL_OBSTACLE.getSymbol());
+    }
+
 }

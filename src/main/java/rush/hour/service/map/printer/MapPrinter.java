@@ -49,9 +49,9 @@ public class MapPrinter implements MapPrinterInterface {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < column; j++) {
                 if (i == 0 || j == 0 || i == row - 1 || j == column - 1) {
-                    map[i][j] = FileCellTypes.WALL.getHead();
+                    map[i][j] = CellTypes.WALL.getSymbol();
                 } else {
-                    map[i][j] = FileCellTypes.EMPTY_CELL.getHead();
+                    map[i][j] = CellTypes.EMPTY_CELL.getSymbol();
                 }
             }
         }
@@ -66,14 +66,14 @@ public class MapPrinter implements MapPrinterInterface {
         char body;
         if (vehicle.getOrientation() == Orientation.HORIZONTAL) {
             if (vehicleType == VehicleType.AI) {
-                head = FileCellTypes.HORIZONTAL_AI.getHead();
-                body = FileCellTypes.HORIZONTAL_AI.getBody();
+                head = CellTypes.HORIZONTAL_AI.getSymbol();
+                body = Character.toLowerCase(CellTypes.HORIZONTAL_AI.getSymbol());
             } else if (vehicleType == VehicleType.PLAYER) {
-                head = FileCellTypes.HORIZONTAL_PLAYER.getHead();
-                body = FileCellTypes.HORIZONTAL_PLAYER.getBody();
+                head = CellTypes.HORIZONTAL_PLAYER.getSymbol();
+                body = Character.toLowerCase(CellTypes.HORIZONTAL_PLAYER.getSymbol());
             } else {
-                head = FileCellTypes.HORIZONTAL_OBSTACLE.getHead();
-                body = FileCellTypes.HORIZONTAL_OBSTACLE.getBody();
+                head = CellTypes.HORIZONTAL_OBSTACLE.getSymbol();
+                body = Character.toLowerCase(CellTypes.HORIZONTAL_OBSTACLE.getSymbol());
             }
             map[obstacleRow][obstacleColumn] = head;
             for (int i = 1; i < vehicle.getVehicleLength(); i++) {
@@ -81,14 +81,14 @@ public class MapPrinter implements MapPrinterInterface {
             }
         } else {
             if (vehicleType == VehicleType.AI) {
-                head = FileCellTypes.VERTICAL_AI.getHead();
-                body = FileCellTypes.VERTICAL_AI.getBody();
+                head = CellTypes.VERTICAL_AI.getSymbol();
+                body = Character.toLowerCase(CellTypes.VERTICAL_AI.getSymbol());
             } else if (vehicleType == VehicleType.PLAYER) {
-                head = FileCellTypes.VERTICAL_PLAYER.getHead();
-                body = FileCellTypes.VERTICAL_PLAYER.getBody();
+                head = CellTypes.VERTICAL_PLAYER.getSymbol();
+                body = Character.toLowerCase(CellTypes.VERTICAL_PLAYER.getSymbol());
             } else {
-                head = FileCellTypes.VERTICAL_OBSTACLE.getHead();
-                body = FileCellTypes.VERTICAL_OBSTACLE.getBody();
+                head = CellTypes.VERTICAL_OBSTACLE.getSymbol();
+                body = Character.toLowerCase(CellTypes.VERTICAL_OBSTACLE.getSymbol());
             }
             map[obstacleRow][obstacleColumn] = head;
             for (int i = 1; i < vehicle.getVehicleLength(); i++) {
@@ -99,9 +99,9 @@ public class MapPrinter implements MapPrinterInterface {
 
     private void addExit(char[][] map, ExitVO exit, ExitType exitType) {
         if (exitType == ExitType.AI) {
-            map[exit.getVerticalPosition()][exit.getHorizontalPosition()] = FileCellTypes.AI_EXIT.getHead();
+            map[exit.getVerticalPosition()][exit.getHorizontalPosition()] = CellTypes.AI_EXIT.getSymbol();
         } else {
-            map[exit.getVerticalPosition()][exit.getHorizontalPosition()] = FileCellTypes.PLAYER_EXIT.getHead();
+            map[exit.getVerticalPosition()][exit.getHorizontalPosition()] = CellTypes.PLAYER_EXIT.getSymbol();
         }
 
     }

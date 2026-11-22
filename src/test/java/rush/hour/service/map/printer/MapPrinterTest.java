@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import rush.hour.model.ExitVO;
-import rush.hour.model.FileCellTypes;
+import rush.hour.model.CellTypes;
 import rush.hour.model.MapVO;
 import rush.hour.model.Orientation;
 import rush.hour.model.VehicleVO;
@@ -84,19 +84,19 @@ class MapPrinterTest {
         assertTrue(output.contains("1"));
         assertTrue(output.contains("a"));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.WALL.getHead())));
+        assertTrue(output.contains(String.valueOf(CellTypes.WALL.getSymbol())));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_PLAYER.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_PLAYER.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.HORIZONTAL_PLAYER.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.HORIZONTAL_PLAYER.getSymbol()))));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_AI.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_AI.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.VERTICAL_AI.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.VERTICAL_AI.getSymbol()))));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_OBSTACLE.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_OBSTACLE.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.HORIZONTAL_OBSTACLE.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.HORIZONTAL_OBSTACLE.getSymbol()))));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.PLAYER_EXIT.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.AI_EXIT.getHead())));
+        assertTrue(output.contains(String.valueOf(CellTypes.PLAYER_EXIT.getSymbol())));
+        assertTrue(output.contains(String.valueOf(CellTypes.AI_EXIT.getSymbol())));
     }
 
     @Test
@@ -147,13 +147,13 @@ class MapPrinterTest {
 
         String output = outputStreamCaptor.toString();
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_PLAYER.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_PLAYER.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.VERTICAL_PLAYER.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.VERTICAL_PLAYER.getSymbol()))));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_AI.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.HORIZONTAL_AI.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.HORIZONTAL_AI.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.HORIZONTAL_AI.getSymbol()))));
 
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_OBSTACLE.getHead())));
-        assertTrue(output.contains(String.valueOf(FileCellTypes.VERTICAL_OBSTACLE.getBody())));
+        assertTrue(output.contains(String.valueOf(CellTypes.VERTICAL_OBSTACLE.getSymbol())));
+        assertTrue(output.contains(String.valueOf(Character.toLowerCase(CellTypes.VERTICAL_OBSTACLE.getSymbol()))));
     }
 }
