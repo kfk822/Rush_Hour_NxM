@@ -49,7 +49,7 @@ class InputValidatorTest {
         String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.BEFORE_GAME_CHOICE);
 
         assertEquals("4", result);
-        assertTrue(printer.printedStates.contains(State.BEFORE_GAME));
+        assertTrue(printer.beforeGameChoicesPrinted);
     }
 
     @Test
@@ -75,6 +75,7 @@ class InputValidatorTest {
         String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
 
         assertEquals("1", result);
+        assertTrue(printer.inGameChoicesPrinted);
     }
 
     @Test
@@ -86,6 +87,7 @@ class InputValidatorTest {
         String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
 
         assertEquals("2", result);
+        assertTrue(printer.inGameChoicesPrinted);
     }
 
     @Test
@@ -155,7 +157,8 @@ class InputValidatorTest {
 
     private static class SpyConsolePrinter extends ConsolePrinter {
         final List<String> messages = new ArrayList<>();
-        final List<State> printedStates = new ArrayList<>();
+        boolean beforeGameChoicesPrinted = false;
+        boolean inGameChoicesPrinted = false;
 
         @Override
         public void printMessage(String message) {
@@ -163,8 +166,13 @@ class InputValidatorTest {
         }
 
         @Override
-        public void printGameStateChoices(State state) {
-            printedStates.add(state);
+        public void printBeforeGameChoices() {
+            beforeGameChoicesPrinted = true;
+        }
+
+        @Override
+        public void printInGameChoices() {
+            inGameChoicesPrinted = true;
         }
     }
 }
