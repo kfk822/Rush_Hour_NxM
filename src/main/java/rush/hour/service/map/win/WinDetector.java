@@ -1,22 +1,18 @@
 package rush.hour.service.map.win;
 
 import rush.hour.model.ExitVO;
-import rush.hour.model.MapVO;
 import rush.hour.model.Orientation;
 import rush.hour.model.VehicleVO;
 
 public class WinDetector {
-    public boolean heroCarWon(MapVO map, VehicleVO heroCar, ExitVO heroCarExit) {
+    public boolean heroCarWon(VehicleVO heroCar, ExitVO heroCarExit) {
         int exitLocation;
         int carLocation;
         if (heroCar.getOrientation() == Orientation.HORIZONTAL) {
             exitLocation = heroCarExit.getHorizontalPosition();
 
-            if (heroCar.getVerticalPosition() != heroCarExit.getVerticalPosition()) {
-                return false;
-            }
-
-            if (heroCar.getHorizontalPosition() > exitLocation) {
+            // Check the rear if the exit is behind the hero car, otherwise check the front
+            if (isExitBehindHeroCar(heroCar.getHorizontalPosition(), exitLocation)) {
                 carLocation = heroCar.getHorizontalPosition() - heroCar.getVehicleLength() + 1;
             } else {
                 carLocation = heroCar.getHorizontalPosition();
@@ -24,21 +20,22 @@ public class WinDetector {
         } else {
             exitLocation = heroCarExit.getVerticalPosition();
 
-            if (heroCar.getHorizontalPosition() != heroCarExit.getHorizontalPosition()) {
-                return false;
-            }
-
-            if (heroCar.getVerticalPosition() > heroCarExit.getVerticalPosition()) {
+            // Check the rear if the exit is behind the hero car, otherwise check the front
+            if (isExitBehindHeroCar(heroCar.getVerticalPosition(), exitLocation)) {
                 carLocation = heroCar.getVerticalPosition() - heroCar.getVehicleLength() + 1;
             } else {
                 carLocation = heroCar.getVerticalPosition();
             }
-
         }
 
-        if (Math.abs(exitLocation - carLocation) == 1) {
-            return true;
-        }
-        return false;
+        return isHeroCarWon(carLocation, exitLocation);
+    }
+
+    private boolean isExitBehindHeroCar(int heroCarPos, int exitPos) {
+        return heroCarPos > exitPos;
+    }
+
+    private boolean isHeroCarWon(int heroCarPos, int exitPos) {
+        return Math.abs(heroCarPos - exitPos) == 1;
     }
 }

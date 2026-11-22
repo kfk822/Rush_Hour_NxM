@@ -4,11 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import rush.hour.model.ExitVO;
-import rush.hour.model.MapVO;
 import rush.hour.model.Orientation;
 import rush.hour.model.VehicleVO;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,45 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WinDetectorTest {
 
     private WinDetector winDetector;
-    private MapVO map;
 
     @BeforeEach
     void setUp() {
         winDetector = new WinDetector();
-
-        VehicleVO dummyPlayer = new VehicleVO.Builder()
-                .withVerticalPosition(2)
-                .withHorizontalPosition(3)
-                .withVehicleLength(2)
-                .withOrientation(Orientation.HORIZONTAL)
-                .build();
-
-        VehicleVO dummyAi = new VehicleVO.Builder()
-                .withVerticalPosition(4)
-                .withHorizontalPosition(1)
-                .withVehicleLength(2)
-                .withOrientation(Orientation.VERTICAL)
-                .build();
-
-        ExitVO dummyPlayerExit = new ExitVO.Builder()
-                .withVerticalPosition(2)
-                .withHorizontalPosition(6)
-                .build();
-
-        ExitVO dummyAiExit = new ExitVO.Builder()
-                .withVerticalPosition(5)
-                .withHorizontalPosition(1)
-                .build();
-
-        map = new MapVO.Builder()
-                .withNumberOfRows(6)
-                .withNumberOfColumns(7)
-                .withHeroCarPlayer(dummyPlayer)
-                .withHeroCarAI(dummyAi)
-                .withExitPlayer(dummyPlayerExit)
-                .withExitAI(dummyAiExit)
-                .withObstacles(Collections.emptyList())
-                .build();
     }
 
     @Test
@@ -72,7 +34,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(6)
                 .build();
 
-        assertTrue(winDetector.heroCarWon(map, heroCar, exit));
+        assertTrue(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -90,25 +52,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(0)
                 .build();
 
-        assertTrue(winDetector.heroCarWon(map, heroCar, exit));
-    }
-
-    @Test
-    @DisplayName("Should return false when horizontal car is not in the same row as exit")
-    void testHeroCarWonShouldReturnFalseWhenHorizontalCarIsInDifferentRow() {
-        VehicleVO heroCar = new VehicleVO.Builder()
-                .withVerticalPosition(3)
-                .withHorizontalPosition(5)
-                .withVehicleLength(2)
-                .withOrientation(Orientation.HORIZONTAL)
-                .build();
-
-        ExitVO exit = new ExitVO.Builder()
-                .withVerticalPosition(2)
-                .withHorizontalPosition(6)
-                .build();
-
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertTrue(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -126,7 +70,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(6)
                 .build();
 
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertFalse(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -144,7 +88,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(0)
                 .build();
 
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertFalse(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -162,7 +106,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(2)
                 .build();
 
-        assertTrue(winDetector.heroCarWon(map, heroCar, exit));
+        assertTrue(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -180,25 +124,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(2)
                 .build();
 
-        assertTrue(winDetector.heroCarWon(map, heroCar, exit));
-    }
-
-    @Test
-    @DisplayName("Should return false when vertical car is not in the same column as exit")
-    void testHeroCarWonShouldReturnFalseWhenVerticalCarIsInDifferentColumn() {
-        VehicleVO heroCar = new VehicleVO.Builder()
-                .withVerticalPosition(4)
-                .withHorizontalPosition(3)
-                .withVehicleLength(2)
-                .withOrientation(Orientation.VERTICAL)
-                .build();
-
-        ExitVO exit = new ExitVO.Builder()
-                .withVerticalPosition(5)
-                .withHorizontalPosition(2)
-                .build();
-
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertTrue(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -216,7 +142,7 @@ class WinDetectorTest {
                 .withHorizontalPosition(2)
                 .build();
 
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertFalse(winDetector.heroCarWon(heroCar, exit));
     }
 
     @Test
@@ -234,6 +160,6 @@ class WinDetectorTest {
                 .withHorizontalPosition(2)
                 .build();
 
-        assertFalse(winDetector.heroCarWon(map, heroCar, exit));
+        assertFalse(winDetector.heroCarWon(heroCar, exit));
     }
 }

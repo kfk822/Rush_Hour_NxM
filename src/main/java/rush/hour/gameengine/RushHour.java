@@ -217,7 +217,7 @@ public class RushHour implements Game {
                     playerTurn = map.moveVehicle(move);
                     log(GameEventType.DEBUG, "Player " + username + " moved: " + moveChoice);
 
-                    if (winDetector.heroCarWon(playerTurn, playerTurn.getHeroCarPlayer(), playerTurn.getExitPlayer())) {
+                    if (winDetector.heroCarWon(playerTurn.getHeroCarPlayer(), playerTurn.getExitPlayer())) {
                         isRunning = false;
                         consolePrinter.printMessage("Player '" + username + "' won.");
                         log(GameEventType.INFO, "Player '" + username + "' won.");
@@ -244,7 +244,7 @@ public class RushHour implements Game {
                         }
                     } while (aiTurn == null);
 
-                    if (winDetector.heroCarWon(aiTurn, aiTurn.getHeroCarAI(), aiTurn.getExitAI())) {
+                    if (winDetector.heroCarWon(aiTurn.getHeroCarAI(), aiTurn.getExitAI())) {
                         isRunning = false;
                         consolePrinter.printMessage("AI won");
                         log(GameEventType.INFO, "AI won");
