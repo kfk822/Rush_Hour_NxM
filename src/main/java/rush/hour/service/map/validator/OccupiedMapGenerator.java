@@ -11,23 +11,31 @@ public class OccupiedMapGenerator {
     public boolean[][] generateOccupiedMap(MapVO map, VehicleVO excludedVehicle) {
         boolean[][] occupiedMap = new boolean[map.getNumberOfRows()][map.getNumberOfColumns()];
 
-        for (int i = 0; i < map.getNumberOfRows(); i++) {
-            for (int j = 0; j < map.getNumberOfColumns(); j++) {
-                if (i == 0 || i == map.getNumberOfRows() - 1 ||
-                        j == 0 || j == map.getNumberOfColumns() - 1) {
-                    occupiedMap[i][j] = true;
-                } else {
-                    occupiedMap[i][j] = false;
-                }
-            }
-        }
+        generateEmptyMap(occupiedMap, map.getNumberOfRows(), map.getNumberOfColumns());
 
         List<VehicleVO> vehicles = new ArrayList<>(map.getObstacles());
         vehicles.add(map.getHeroCarPlayer());
         vehicles.add(map.getHeroCarAI());
-        if(excludedVehicle != null) {
+
+        if (excludedVehicle != null) {
             vehicles.remove(excludedVehicle);
         }
+
+        fillMap(occupiedMap, vehicles);
+
+
+        return occupiedMap;
+    }
+
+    private void generateEmptyMap(boolean[][] occupiedMap, int numberOfRows, int numberOfColumns) {
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                occupiedMap[i][j] = isBorder(i, j, numberOfRows, numberOfColumns);
+            }
+        }
+    }
+
+    private void fillMap(boolean[][] occupiedMap, List<VehicleVO> vehicles) {
         for (VehicleVO vehicle : vehicles) {
             int length = vehicle.getVehicleLength();
             int horizontalPosition = vehicle.getHorizontalPosition();
@@ -43,7 +51,12 @@ public class OccupiedMapGenerator {
 
             }
         }
+    }
 
-        return occupiedMap;
+    private boolean isBorder(int row, int column, int numberOfRows, int numberOfColumns) {
+        return row == 0 ||
+                column == 0 ||
+                row == numberOfRows - 1 ||
+                column == numberOfColumns - 1;
     }
 }

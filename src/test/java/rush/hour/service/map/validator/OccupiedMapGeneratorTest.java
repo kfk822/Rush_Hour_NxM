@@ -26,6 +26,14 @@ class OccupiedMapGeneratorTest {
     @BeforeEach
     void setUp() {
         underTest = new OccupiedMapGenerator();
+        /*
+         #######
+         #..hhH#
+         #.pP..E
+         #.a...#
+         #.A...#
+         ##X####
+         */
 
         playerCar = new VehicleVO.Builder()
                 .withVerticalPosition(2)
@@ -43,11 +51,11 @@ class OccupiedMapGeneratorTest {
 
         playerExit = new ExitVO.Builder()
                 .withVerticalPosition(2)
-                .withHorizontalPosition(7)
+                .withHorizontalPosition(6)
                 .build();
 
         aiExit = new ExitVO.Builder()
-                .withVerticalPosition(6)
+                .withVerticalPosition(5)
                 .withHorizontalPosition(2)
                 .build();
 
