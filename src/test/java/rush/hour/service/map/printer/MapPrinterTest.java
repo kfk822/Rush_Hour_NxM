@@ -36,6 +36,14 @@ class MapPrinterTest {
     @Test
     @DisplayName("Should print grid headers, walls, horizontal player car, vertical AI car, obstacles and exits")
     void testPrintMapShouldRenderAllElementsCorrectly() {
+        /*
+         #######
+         #..hhH#
+         #.pP..E
+         #a....#
+         #A....#
+         #X#####
+         */
         VehicleVO playerCar = new VehicleVO.Builder()
                 .withVerticalPosition(2)
                 .withHorizontalPosition(3)
@@ -102,6 +110,14 @@ class MapPrinterTest {
     @Test
     @DisplayName("Should cover remaining branches when player is vertical, AI is horizontal, and obstacle is vertical")
     void testPrintMapShouldCoverAlternativeOrientations() {
+        /*
+         #######
+         #.....E
+         #.v.p.#
+         #.V.P.#
+         #.aA..#
+         ##X####
+         */
         VehicleVO verticalPlayer = new VehicleVO.Builder()
                 .withVerticalPosition(3)
                 .withHorizontalPosition(4)
