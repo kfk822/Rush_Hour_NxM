@@ -28,7 +28,14 @@ class MovementValidatorTest {
     @BeforeEach
     void setUp() {
         movementValidator = new MovementValidator();
-
+        /*
+         #######
+         #.....#
+         #.pP..E
+         #a....#
+         #A....#
+         #X#####
+         */
         horizontalCar = new VehicleVO.Builder()
                 .withVerticalPosition(2)
                 .withHorizontalPosition(3)
