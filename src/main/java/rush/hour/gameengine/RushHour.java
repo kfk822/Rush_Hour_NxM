@@ -105,9 +105,11 @@ public class RushHour implements Game {
     @Override
     public void update() {
         if (gameState.getState() == State.IN_GAME) {
-            if (moveChoice.equals("1")) {
+            if (moveChoice.equals(Choice.SAVE_AND_QUIT_GAME.getValue())) {
+                aiTurn = null;
+                playerTurn = null;
                 saveGame();
-            } else if (moveChoice.equals("2")) {
+            } else if (moveChoice.equals(Choice.QUIT_GAME.toString())) {
                 aiTurn = null;
                 playerTurn = null;
                 leaveGame();
@@ -184,7 +186,7 @@ public class RushHour implements Game {
         consolePrinter = new ConsolePrinter();
         consoleScanner = new Scanner(System.in);
         scannerConsoleReader = new ScannerConsoleReader(consoleScanner);
-        inputValidator = new InputValidator(scannerConsoleReader, consolePrinter);
+        inputValidator = new InputValidator();
         jsonMapLoader = new JSONMapLoader();
         jsonMapSaver = new JSONMapSaver();
         mapScanner = new Scanner(Main.class.getClassLoader().getResourceAsStream(config.getBaseMapPath()));
@@ -223,7 +225,10 @@ public class RushHour implements Game {
     }
 
     private void getUserName() {
-        username = inputValidator.getValidInput(gameState.getState(), InputType.NAME);
+        do {
+            consolePrinter.printMessage("What is your username?");
+            username = scannerConsoleReader.read();
+        } while (!inputValidator.isValidInput(username, InputType.NAME));
         log(GameEventType.INFO, "Player " + username + " joined the game.");
         try {
             if (!databaseManager.playerExists(username)) {
@@ -238,14 +243,17 @@ public class RushHour implements Game {
     }
 
     private void getBeforeGameInput() {
-        String input = inputValidator.getValidInput(gameState.getState(), InputType.BEFORE_GAME_CHOICE);
-        int choice = Integer.parseInt(input);
+        String input;
+        do {
+            consolePrinter.printBeforeGameChoices();
+            input = scannerConsoleReader.read();
+        } while (!inputValidator.isValidInput(input, InputType.BEFORE_GAME_CHOICE));
 
-        if (choice == 1) {
+        if (input.equals(Choice.PLAY.getValue())) {
             startGame();
-        } else if (choice == 2) {
+        } else if (input.equals(Choice.LOAD_GAME.getValue())) {
             loadGame();
-        } else if (choice == 3) {
+        } else if (input.equals(Choice.SHOW_LEADERBOARD.getValue())) {
             printLeaderboard();
 
         } else {
@@ -254,7 +262,10 @@ public class RushHour implements Game {
     }
 
     private void getInGameInput() {
-        moveChoice = inputValidator.getValidInput(gameState.getState(), InputType.IN_GAME_CHOICE);
+        do {
+            consolePrinter.printInGameChoices();
+            moveChoice = scannerConsoleReader.read();
+        } while (!inputValidator.isValidInput(moveChoice, InputType.IN_GAME_CHOICE));
     }
 
     private void startGame() {
@@ -263,8 +274,13 @@ public class RushHour implements Game {
     }
 
     private void loadGame() {
+        String filename;
+        do {
+            consolePrinter.printMessage("What is the name of the map?");
+            filename = scannerConsoleReader.read();
+        } while (!inputValidator.isValidInput(filename, InputType.MAP_FILE_NAME));
+
         try {
-            String filename = inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME);
             map = jsonMapLoader.loadMap(filename);
             log(GameEventType.INFO, "Map loaded from JSON file: " + filename + ".json");
             startGame();
@@ -287,6 +303,8 @@ public class RushHour implements Game {
     }
 
     private void nextRound() {
+        aiTurn = null;
+        playerTurn = null;
         try {
             movePlayer();
 
@@ -332,7 +350,7 @@ public class RushHour implements Game {
     }
 
     private void moveAI() {
-        aiTurn = null;
+
         enemyAI.nextTurn();
         int attempt = 1;
         do {
@@ -349,13 +367,16 @@ public class RushHour implements Game {
     }
 
     private void saveGame() {
-        String filename = inputValidator.getValidInput(gameState.getState(), InputType.MAP_FILE_NAME);
+        String filename;
+        do {
+            consolePrinter.printMessage("What is the name of the map?");
+            filename = scannerConsoleReader.read();
+        } while (!inputValidator.isValidInput(filename, InputType.MAP_FILE_NAME));
+
         try {
             log(GameEventType.DEBUG, "Saving map.");
             jsonMapSaver.saveMap(map, filename);
             log(GameEventType.INFO, "Map saved to JSON file: " + filename + ".json");
-            aiTurn = null;
-            playerTurn = null;
             leaveGame();
         } catch (JSONMapSaverException e) {
             log(GameEventType.ERROR, e.getMessage());

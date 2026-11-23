@@ -1,178 +1,97 @@
 package rush.hour.service.ui.validator;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rush.hour.model.Choice;
 import rush.hour.model.InputType;
-import rush.hour.model.State;
-import rush.hour.service.ui.printer.ConsolePrinter;
-import rush.hour.service.ui.reader.ConsoleReader;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InputValidatorTest {
 
-    @Test
-    void testGetValidInputShouldReturnUsernameWhenImmediatelyValid() {
-        StubConsoleReader reader = new StubConsoleReader("Player1");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
+    private InputValidator inputValidator;
 
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.NAME);
-
-        assertEquals("Player1", result);
-        assertTrue(printer.messages.contains("What is your username?"));
+    @BeforeEach
+    void setUp() {
+        inputValidator = new InputValidator();
     }
 
     @Test
-    void testGetValidInputShouldRetryWhenUsernameIsEmptyAtFirst() {
-        StubConsoleReader reader = new StubConsoleReader("", "ValidUser");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.NAME);
-
-        assertEquals("ValidUser", result);
-        assertTrue(printer.messages.contains("Input can't be empty!"));
-        assertEquals(2, reader.readCount);
+    void testIsValidInputShouldReturnFalseWhenInputIsNull() {
+        assertFalse(inputValidator.isValidInput(null, InputType.NAME));
     }
 
     @Test
-    void testGetValidInputShouldReturnChoiceWhenNumberIsInRange() {
-        StubConsoleReader reader = new StubConsoleReader("4");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.BEFORE_GAME_CHOICE);
-
-        assertEquals("4", result);
-        assertTrue(printer.beforeGameChoicesPrinted);
+    void testIsValidInputShouldReturnFalseWhenInputTypeIsNull() {
+        assertFalse(inputValidator.isValidInput("Player1", null));
     }
 
     @Test
-    void testGetValidInputShouldRetryWhenChoiceIsInvalidNumberOrOutOfRange() {
-        StubConsoleReader reader = new StubConsoleReader("abc", "0", "5", "2");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.BEFORE_GAME_CHOICE);
-
-        assertEquals("2", result);
-        long errorCount = printer.messages.stream().filter("Invalid choice!"::equals).count();
-        assertEquals(3, errorCount);
-        assertEquals(4, reader.readCount);
+    void testIsValidInputShouldReturnTrueWhenNameIsValid() {
+        assertTrue(inputValidator.isValidInput("Player1", InputType.NAME));
     }
 
     @Test
-    void testGetValidInputShouldReturnSaveAndQuitWhenOneIsEnteredInGame() {
-        StubConsoleReader reader = new StubConsoleReader("1");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
-
-        assertEquals("1", result);
-        assertTrue(printer.inGameChoicesPrinted);
+    void testIsValidInputShouldReturnFalseWhenNameIsEmptyOrContainsSpace() {
+        assertFalse(inputValidator.isValidInput("", InputType.NAME));
+        assertFalse(inputValidator.isValidInput(" ", InputType.NAME));
+        assertFalse(inputValidator.isValidInput("Player 1", InputType.NAME));
     }
 
     @Test
-    void testGetValidInputShouldReturnQuitWhenTwoIsEnteredInGame() {
-        StubConsoleReader reader = new StubConsoleReader("2");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
-
-        assertEquals("2", result);
-        assertTrue(printer.inGameChoicesPrinted);
+    void testIsValidInputShouldReturnTrueWhenMapFileNameIsValid() {
+        assertTrue(inputValidator.isValidInput("saved_map", InputType.MAP_FILE_NAME));
     }
 
     @Test
-    void testGetValidInputShouldReturnValidMoveWhenFormatIsCorrect() {
-        StubConsoleReader reader = new StubConsoleReader("a1->a3");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
-
-        assertEquals("a1->a3", result);
+    void testIsValidInputShouldReturnFalseWhenMapFileNameIsEmptyOrContainsSpace() {
+        assertFalse(inputValidator.isValidInput("", InputType.MAP_FILE_NAME));
+        assertFalse(inputValidator.isValidInput(" ", InputType.MAP_FILE_NAME));
+        assertFalse(inputValidator.isValidInput("saved map", InputType.MAP_FILE_NAME));
     }
 
     @Test
-    void testGetValidInputShouldRetryWhenMoveFormatIsInvalid() {
-        StubConsoleReader reader = new StubConsoleReader("a1-a3", "A1->a3", "a->b", "b2->b5");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.IN_GAME, InputType.IN_GAME_CHOICE);
-
-        assertEquals("b2->b5", result);
-        long errorCount = printer.messages.stream().filter("Invalid choice!"::equals).count();
-        assertEquals(3, errorCount);
-        assertEquals(4, reader.readCount);
+    void testIsValidInputShouldReturnTrueWhenBeforeGameChoiceIsValid() {
+        assertTrue(inputValidator.isValidInput(Choice.PLAY.getValue(), InputType.BEFORE_GAME_CHOICE));
+        assertTrue(inputValidator.isValidInput(Choice.LOAD_GAME.getValue(), InputType.BEFORE_GAME_CHOICE));
+        assertTrue(inputValidator.isValidInput(Choice.SHOW_LEADERBOARD.getValue(), InputType.BEFORE_GAME_CHOICE));
+        assertTrue(inputValidator.isValidInput(Choice.QUIT_PROGRAM.getValue(), InputType.BEFORE_GAME_CHOICE));
     }
 
     @Test
-    void testGetValidInputShouldReturnMapFileNameWhenImmediatelyValid() {
-        StubConsoleReader reader = new StubConsoleReader("saved_map");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.MAP_FILE_NAME);
-
-        assertEquals("saved_map", result);
-        assertTrue(printer.messages.contains("What is the name of the map?"));
+    void testIsValidInputShouldReturnFalseWhenBeforeGameChoiceIsInvalid() {
+        assertFalse(inputValidator.isValidInput("", InputType.BEFORE_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("0", InputType.BEFORE_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("5", InputType.BEFORE_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("abc", InputType.BEFORE_GAME_CHOICE));
     }
 
     @Test
-    void testGetValidInputShouldRetryWhenMapFileNameIsEmptyAtFirst() {
-        StubConsoleReader reader = new StubConsoleReader("", "my_map");
-        SpyConsolePrinter printer = new SpyConsolePrinter();
-        InputValidator inputValidator = new InputValidator(reader, printer);
-
-        String result = inputValidator.getValidInput(State.BEFORE_GAME, InputType.MAP_FILE_NAME);
-
-        assertEquals("my_map", result);
-        assertTrue(printer.messages.contains("Invalid map name!"));
-        assertEquals(2, reader.readCount);
+    void testIsValidInputShouldReturnTrueWhenInGameChoiceIsValidMenuOption() {
+        assertTrue(inputValidator.isValidInput(Choice.SAVE_AND_QUIT_GAME.getValue(), InputType.IN_GAME_CHOICE));
+        assertTrue(inputValidator.isValidInput(Choice.QUIT_GAME.getValue(), InputType.IN_GAME_CHOICE));
     }
 
-    private static class StubConsoleReader implements ConsoleReader {
-        private final List<String> inputs;
-        private int readCount = 0;
-
-        StubConsoleReader(String... inputs) {
-            this.inputs = new ArrayList<>(Arrays.asList(inputs));
-        }
-
-        @Override
-        public String read() {
-            readCount++;
-            return inputs.remove(0);
-        }
+    @Test
+    void testIsValidInputShouldReturnTrueWhenInGameMoveFormatIsValid() {
+        assertTrue(inputValidator.isValidInput("a1->a3", InputType.IN_GAME_CHOICE));
+        assertTrue(inputValidator.isValidInput("z10->b2", InputType.IN_GAME_CHOICE));
     }
 
-    private static class SpyConsolePrinter extends ConsolePrinter {
-        final List<String> messages = new ArrayList<>();
-        boolean beforeGameChoicesPrinted = false;
-        boolean inGameChoicesPrinted = false;
-
-        @Override
-        public void printMessage(String message) {
-            messages.add(message);
-        }
-
-        @Override
-        public void printBeforeGameChoices() {
-            beforeGameChoicesPrinted = true;
-        }
-
-        @Override
-        public void printInGameChoices() {
-            inGameChoicesPrinted = true;
-        }
+    @Test
+    void testIsValidInputShouldReturnFalseWhenInGameChoiceOrMoveFormatIsInvalid() {
+        assertFalse(inputValidator.isValidInput("", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1-a3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1->a2->a3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1->", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("->a1", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("A1->a3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("{1->a3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1->A3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1->{3", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a->b", InputType.IN_GAME_CHOICE));
+        assertFalse(inputValidator.isValidInput("a1->bb", InputType.IN_GAME_CHOICE));
     }
 }

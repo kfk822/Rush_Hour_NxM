@@ -1,81 +1,54 @@
 package rush.hour.service.ui.validator;
 
+import rush.hour.model.Choice;
 import rush.hour.model.InputType;
-import rush.hour.model.State;
-import rush.hour.service.ui.printer.ConsolePrinter;
-import rush.hour.service.ui.reader.ConsoleReader;
 
 public class InputValidator {
-    ConsoleReader consoleReader;
-    ConsolePrinter consolePrinter;
 
-    public InputValidator(ConsoleReader consoleReader, ConsolePrinter consolePrinter) {
-        this.consoleReader = consoleReader;
-        this.consolePrinter = consolePrinter;
+    public boolean isValidInput(String input, InputType inputType) {
+        if (input == null || inputType == null){
+            return false;
+        }
+
+        switch (inputType) {
+            case NAME, MAP_FILE_NAME -> {
+                return !(input.isEmpty() || input.contains(" "));
+            }
+            case BEFORE_GAME_CHOICE -> {
+                return isBeforeGameChoice(input);
+            }
+            case IN_GAME_CHOICE -> {
+                return isInGameChoice(input) || isValidMoveFormat(input);
+            }
+            default -> {
+                return false;
+            }
+        }
+
     }
 
-    public String getValidInput(State state, InputType inputType) {
-        boolean validInput = false;
-        String input = "";
-        do {
-            switch (inputType) {
-                case NAME:
-                    consolePrinter.printMessage("What is your username?");
-                    input = consoleReader.read();
-                    if (input.isEmpty()) {
-                        consolePrinter.printMessage("Input can't be empty!");
-                    } else {
-                        validInput = true;
-                    }
-                    break;
-                case BEFORE_GAME_CHOICE:
-                    consolePrinter.printBeforeGameChoices();
-                    input = consoleReader.read();
-                    int choice;
-                    try {
-                        choice = Integer.parseInt(input);
-                        if (choice > 0 && choice <= 4) {
-                            validInput = true;
-                        } else {
-                            consolePrinter.printMessage("Invalid choice!");
-                        }
-                    } catch (NumberFormatException e) {
-                        consolePrinter.printMessage("Invalid choice!");
-                    }
-                    break;
-                case IN_GAME_CHOICE:
-                    consolePrinter.printInGameChoices();
-                    input = consoleReader.read();
-                    if (input.equals("1") || input.equals("2") || isValidMoveFormat(input)) {
-                        validInput = true;
-                    } else {
-                        consolePrinter.printMessage("Invalid choice!");
-                    }
-                    break;
-                case MAP_FILE_NAME:
-                    consolePrinter.printMessage("What is the name of the map?");
-                    input = consoleReader.read();
-                    if (input.isEmpty()) {
-                        consolePrinter.printMessage("Invalid map name!");
-                    } else {
-                        validInput = true;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        } while (!validInput);
+    private boolean isBeforeGameChoice(String input) {
+        return input.equals(Choice.PLAY.getValue()) ||
+                input.equals(Choice.LOAD_GAME.getValue()) ||
+                input.equals(Choice.SHOW_LEADERBOARD.getValue()) ||
+                input.equals(Choice.QUIT_PROGRAM.getValue());
+    }
 
-        return input;
+    private boolean isInGameChoice(String input) {
+        return input.equals(Choice.SAVE_AND_QUIT_GAME.getValue()) ||
+                input.equals(Choice.QUIT_GAME.getValue());
     }
 
     private boolean isValidMoveFormat(String input) {
         try {
             String[] positions = input.split("->");
+            if(positions.length != 2){
+                return false;
+            }
             char positionCharacter1 = positions[0].charAt(0);
-            int positionNumber1 = Integer.parseInt(positions[0].substring(1));
+            Integer.parseInt(positions[0].substring(1));
             char positionCharacter2 = positions[1].charAt(0);
-            int positionNumber2 = Integer.parseInt(positions[1].substring(1));
+            Integer.parseInt(positions[1].substring(1));
             if (positionCharacter1 >= 'a' &&
                     positionCharacter1 <= 'z' &&
                     positionCharacter2 >= 'a' &&
